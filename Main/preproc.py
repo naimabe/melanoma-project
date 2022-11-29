@@ -100,3 +100,11 @@ def balance_data(X):
                                 k_neighborsint=5,
                                 n_jobs=-1)
     return X_balanced
+
+
+
+
+def image_preprocessing_pipeline():
+    '''
+
+    '''

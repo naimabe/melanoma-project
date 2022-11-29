@@ -16,7 +16,7 @@ def initialise_EfficientNet_model():
                             weights='imagenet',
                             input_shape=(256, 256, 3),
                             trainable=False)
-    base_model.trainable = False
+    #base_model.trainable = False
     base_model.add(layers.Flatten())
     base_model.add(layers.Conv2D(64, activation='relu'))
     base_model.add(layers.Dense(9, activation='softmax'))
