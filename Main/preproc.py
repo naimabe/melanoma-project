@@ -108,3 +108,5 @@ def image_preprocessing_pipeline():
     '''
 
     '''
+
+    images =

@@ -129,3 +129,7 @@ dmypy.json
 .pyre/
 
 data
+
+#Test docs
+tests_G.ipynb
+

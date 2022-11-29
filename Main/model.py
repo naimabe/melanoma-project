@@ -2,6 +2,7 @@ from keras.applications import EfficientNetB7
 from keras.models import Sequential, Model
 from keras import layers
 import tensorflow as tf
+from keras.callbacks import EarlyStopping
 
 
 
@@ -24,6 +25,16 @@ def initialise_EfficientNet_model():
                                optimizer=tf.keras.optimizers.Adam,
                                metrics=['accuracy', 'precision'])
     return model
+
+
+def train_model(model, X, y, batch_size=64, patience=5, validation_split=0.3):
+    '''
+    Train model with earlystopping and batch size parameters
+    Args:
+
+    KwArgs: 
+
+    '''
 
 
 
