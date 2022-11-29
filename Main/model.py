@@ -1,9 +1,8 @@
-from keras.applications import EfficientNetB7
-from keras.models import Sequential, Model
-from keras import layers
 import tensorflow as tf
+from keras import layers
+from keras.applications import EfficientNetB7
 from keras.callbacks import EarlyStopping
-
+from keras.models import Model, Sequential
 
 
 def initialise_EfficientNet_model():
