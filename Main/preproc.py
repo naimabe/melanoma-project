@@ -8,7 +8,11 @@ import os
 import albumentations as A
 import cv2 as cv
 from imblearn.over_sampling import SMOTE
-
+import matplotlib.pyplot as plt
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.utils import image_dataset_from_directory
+import tensorflow_datasets as tfds
+import tensorflow as tf
 
 
 def move_images():
@@ -17,13 +21,13 @@ def move_images():
     Args: None
     Returns: None
     '''
-    df = pd.read_csv(Path('..', 'data', 'Skin_lesion', 'ISIC_2019_Training_GroundTruth.csv'))
+    df = pd.read_csv(os.environ.get('LOAD_DATA_PATH'))
     df.set_index('image')
     for source in df.index:
         for column in df.columns:
             if df.loc[source][column] == 1:
-                source_path = Path('..', 'data', 'Skin_lesion', 'ISIC_2019_Training_Input', f'{source}.jpg')
-                destination_path = Path('..', 'data', f'{column}')
+                source_path = os.environ.get('SOURCE_PATH')
+                destination_path = os.environ.get('DESTINATION_PATH')
                 shutil.move(source_path, destination_path)
 
 
@@ -43,7 +47,7 @@ def load_images():
                 'BKL' : 4, 'DF' : 5,
                 'VASC' : 6, 'SCC' : 7,
                 'UNK' : 8}
-    data_path = Path('..', 'data')
+    data_path = os.environ.get('DATA_PATH')
 
 
     for (cl, i) in classes.items():
@@ -109,4 +113,26 @@ def image_preprocessing_pipeline():
 
     '''
 
-    images =
+
+
+def images_to_dataset():
+    '''
+    Function that sort and transform images into a tensoflow dataset according to their classes
+    '''
+    directory = os.environ.get('DATA_PATH')
+    dataset = image_dataset_from_directory(
+                                    directory,
+                                    labels='inferred',
+                                    label_mode='int',
+                                    class_names=None,
+                                    color_mode='rgb',
+                                    batch_size=32,
+                                    image_size=(256, 256),
+                                    shuffle=True,
+                                    seed=None,
+                                    validation_split=None,
+                                    subset=None,
+                                    follow_links=False,
+                                    crop_to_aspect_ratio=False,
+                                )
+    return dataset

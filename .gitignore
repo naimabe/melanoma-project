@@ -135,3 +135,6 @@ tests_G.ipynb
 
 *.zip
 .DS_Store
+test image resizing.ipynb
+tests.ipynb
+.env
