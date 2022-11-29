@@ -1,18 +1,18 @@
 
-import shutil
-from PIL import Image
-from pathlib import Path
-import pandas as pd
-import numpy as np
 import os
+import shutil
+from pathlib import Path
+
 import albumentations as A
 import cv2 as cv
-from imblearn.over_sampling import SMOTE
 import matplotlib.pyplot as plt
-from tensorflow.keras.utils import to_categorical
-from tensorflow.keras.utils import image_dataset_from_directory
-import tensorflow_datasets as tfds
+import numpy as np
+import pandas as pd
 import tensorflow as tf
+import tensorflow_datasets as tfds
+from imblearn.over_sampling import SMOTE
+from PIL import Image
+from tensorflow.keras.utils import image_dataset_from_directory, to_categorical
 
 
 def move_images():
@@ -21,13 +21,13 @@ def move_images():
     Args: None
     Returns: None
     '''
-    df = pd.read_csv(os.environ.get('LOAD_DATA_PATH'))
+    df = pd.read_csv(os.environ.get('TARGET_CSV_PATH'))
     df.set_index('image')
     for source in df.index:
         for column in df.columns:
             if df.loc[source][column] == 1:
-                source_path = os.environ.get('SOURCE_PATH')
-                destination_path = os.environ.get('DESTINATION_PATH')
+                source_path = os.environ.get('ORIGINAL_IMAGE_PATH')
+                destination_path = os.environ.get('IMAGE_DATA_PATH')
                 shutil.move(source_path, destination_path)
 
 
@@ -118,8 +118,10 @@ def image_preprocessing_pipeline():
 def images_to_dataset():
     '''
     Function that sort and transform images into a tensoflow dataset according to their classes
+
+    Returns: Tensor (but should return Numpy or Dataframe)
     '''
-    directory = os.environ.get('DATA_PATH')
+    directory = os.environ.get('IMAGE_SUBSET_DATA_PATH')
     dataset = image_dataset_from_directory(
                                     directory,
                                     labels='inferred',
