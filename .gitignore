@@ -130,5 +130,5 @@ dmypy.json
 
 data
 test image resizing.ipynb
-Main/tests.ipynb
+tests.ipynb
 .env
