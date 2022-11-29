@@ -131,7 +131,6 @@ dmypy.json
 data
 
 #Test docs
-tests_G.ipynb
 
 *.zip
 .DS_Store
