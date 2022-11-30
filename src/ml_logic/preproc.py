@@ -122,7 +122,7 @@ def images_to_dataset():
 
     Returns: Tensor (but should return Numpy or Dataframe)
     '''
-    directory = os.environ.get('IMAGE_SUBSET_DATA_PATH')
+    directory = os.environ.get('IMAGE_DATA_PATH')
     dataset = image_dataset_from_directory(
                                     directory,
                                     labels='inferred',
@@ -133,8 +133,8 @@ def images_to_dataset():
                                     image_size=(256, 256),
                                     shuffle=True,
                                     seed=None,
-                                    validation_split=None,
-                                    subset=None,
+                                    validation_split=0.3,
+                                    subset=False,
                                     follow_links=False,
                                     crop_to_aspect_ratio=False,
                                 )
