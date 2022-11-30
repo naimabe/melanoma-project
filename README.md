@@ -14,7 +14,11 @@ The Goal of this project is to classify what is the diagnostic of a skin lesion 
 
 We have two csv and one folder with all the images.
 There are 9 categories of skin lesion.
-We want to create a model that predict which category a skin lesion is thank to a photo of the skin lesion and with some other informations (sex, age...)
+We want to create a model that predict which category a skin lesion is thank to a photo of the skin lesion and with some other informations (sex, age...).
+
+Description of each category :
+
+
 
 ## Project setup
 ## Environment
