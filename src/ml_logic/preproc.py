@@ -21,13 +21,13 @@ def move_images():
     Args: None
     Returns: None
     '''
-    df = pd.read_csv(os.environ.get('LOAD_DATA_PATH'))
+    df = pd.read_csv(os.environ.get('GROUNDTRUTH_PATH'))
     df.set_index('image')
     for source in df.index:
         for column in df.columns:
             if df.loc[source][column] == 1:
-                source_path = os.environ.get('SOURCE_PATH')
-                destination_path = os.environ.get('DESTINATION_PATH')
+                source_path = os.environ.get('SOURCE_PATH')/f'{source}.jpg'
+                destination_path = os.environ.get('DESTINATION_PATH')/f'{column}'
                 shutil.move(source_path, destination_path)
 
 
@@ -119,7 +119,7 @@ def images_to_dataset():
     '''
     Function that sort and transform images into a tensoflow dataset according to their classes
     '''
-    directory = os.environ.get('DATA_PATH')
+    directory = os.environ.get('DESTINATION_PATH')
     dataset = image_dataset_from_directory(
                                     directory,
                                     labels='inferred',

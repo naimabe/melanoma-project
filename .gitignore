@@ -129,6 +129,5 @@ dmypy.json
 .pyre/
 
 data
-test image resizing.ipynb
-tests.ipynb
+*ipynb
 .env
