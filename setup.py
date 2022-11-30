@@ -1,12 +1,12 @@
-# from setuptools import find_packages
-# from setuptools import setup
+from setuptools import find_packages
+from setuptools import setup
 
-# with open("requirements.txt") as f:
-#     content = f.readlines()
-# requirements = [x.strip() for x in content if "git+" not in x]
+with open("requirements.txt") as f:
+    content = f.readlines()
+requirements = [x.strip() for x in content if "git+" not in x]
 
-# setup(name='taxifare',
-#       version="0.0.9",
+setup(name='taxifare',
+      version="0.0.9",
 #       description="TaxiFare Model (api_pred)",
 #       license="MIT",
 #       author="Le Wagon",
