@@ -5,10 +5,10 @@ import tensorflow as tf
 
 
 
-def initialise_EfficientNet_model():
+def initialise_EfficientNet_model(learning_rate):
     '''
     Initialises non-trainable basemodel EfficientNet, adds two layers and compiles for multicategorical classification.
-    Args: None
+    Args: learning rate (int)
     returns: Model
     '''
 
@@ -21,7 +21,7 @@ def initialise_EfficientNet_model():
     base_model.add(layers.Conv2D(64, activation='relu'))
     base_model.add(layers.Dense(9, activation='softmax'))
     model = base_model.compile(loss='categorical_crossentropy',
-                               optimizer=tf.keras.optimizers.Adam,
+                               optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
                                metrics=['accuracy', 'precision'])
     return model
 

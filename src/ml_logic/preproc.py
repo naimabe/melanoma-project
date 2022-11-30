@@ -146,10 +146,10 @@ def images_to_dataset():
 def preprocessing_tabulaire():
 
     """
-     Cette function fait preprocessing des données tabulaires
+    Cette function fait preprocessing des données tabulaires
 
     """
-    df = pd.read_csv(Path('..', 'data', 'archive', 'ISIC_2019_Training_Metadata.csv'))
+    df = pd.read_csv(os.environ.get('METADATA_CSV_PATH'))
     df = df.dropna(axis=0, how='all', subset=['age_approx', 'anatom_site_general', 'sex'])
     df = df.drop(['lesion_id'], axis=1)
     df.sex.replace(np.nan, "Delete", inplace=True)
@@ -162,13 +162,15 @@ def preprocessing_tabulaire():
     ohe.fit(df[['sex']])
     sex_encoded = ohe.transform(df[['sex']])
     df[ohe.categories_[0]] = sex_encoded
+
     df.anatom_site_general.unique()
     ohe2 = OneHotEncoder(sparse = False, handle_unknown='ignore')
     ohe2.fit(df[['anatom_site_general']])
     anatom_site_general_encoded = ohe2.transform(df[['anatom_site_general']])
     df[ohe2.categories_[0]] = anatom_site_general_encoded
     df = df.drop(columns=['anatom_site_general', 'sex', 'Delete', 'Delete1'])
-    y_df = pd.read_csv(Path('..', 'data', 'archive', 'ISIC_2019_Training_GroundTruth.csv'))
+    y_df = pd.read_csv(os.environ.get('TARGET_CSV_PATH'))
+
     y_df = y_df.set_index('image')
     y_df = y_df.idxmax(axis='columns')
     y_df = y_df.reset_index()
