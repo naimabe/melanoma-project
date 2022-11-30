@@ -56,6 +56,7 @@ def load_images():
 
 
 def augmentation_pipeline(img):
+
     '''
     Augments image data by random cropping, horizontal flipping and changing the brightness contrast.
 
