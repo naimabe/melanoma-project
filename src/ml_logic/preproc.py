@@ -118,7 +118,7 @@ def image_preprocessing_pipeline():
 
 def images_to_dataset():
     '''
-    Function that sort and transform images into a tensoflow dataset according to their classes
+    Function that sort and transform images into a tensorflow dataset according to their classes
 
     Returns: Tensor (but should return Numpy or Dataframe)
     '''
@@ -133,8 +133,8 @@ def images_to_dataset():
                                     image_size=(256, 256),
                                     shuffle=True,
                                     seed=None,
-                                    validation_split=0.3,
-                                    subset=False,
+                                    validation_split=None,
+                                    subset=None,
                                     follow_links=False,
                                     crop_to_aspect_ratio=False,
                                 )
