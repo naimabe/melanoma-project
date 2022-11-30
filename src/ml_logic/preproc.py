@@ -14,6 +14,8 @@ from imblearn.over_sampling import SMOTE
 from PIL import Image
 from tensorflow.keras.utils import image_dataset_from_directory, to_categorical
 
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.impute import SimpleImputer
 
 def move_images():
     '''
@@ -139,3 +141,45 @@ def images_to_dataset():
                                     crop_to_aspect_ratio=False,
                                 )
     return dataset
+
+
+def preprocessing_tabulaire():
+
+    """
+     Cette function fait preprocessing des données tabulaires
+
+    """
+    df = pd.read_csv(Path('..', 'data', 'archive', 'ISIC_2019_Training_Metadata.csv'))
+    df = df.dropna(axis=0, how='all', subset=['age_approx', 'anatom_site_general', 'sex'])
+    df = df.drop(['lesion_id'], axis=1)
+    df.sex.replace(np.nan, "Delete", inplace=True)
+    df.anatom_site_general.replace(np.nan, "Delete1", inplace=True)
+    imputer = SimpleImputer(strategy="mean")
+    imputer.fit(df[['age_approx']])
+    df['age_approx'] = imputer.transform(df[['age_approx']])
+    df.sex.unique()
+    ohe = OneHotEncoder(sparse = False, handle_unknown='ignore')
+    ohe.fit(df[['sex']])
+    sex_encoded = ohe.transform(df[['sex']])
+    df[ohe.categories_[0]] = sex_encoded
+    df.anatom_site_general.unique()
+    ohe2 = OneHotEncoder(sparse = False, handle_unknown='ignore')
+    ohe2.fit(df[['anatom_site_general']])
+    anatom_site_general_encoded = ohe2.transform(df[['anatom_site_general']])
+    df[ohe2.categories_[0]] = anatom_site_general_encoded
+    df = df.drop(columns=['anatom_site_general', 'sex', 'Delete', 'Delete1'])
+    y_df = pd.read_csv(Path('..', 'data', 'archive', 'ISIC_2019_Training_GroundTruth.csv'))
+    y_df = y_df.set_index('image')
+    y_df = y_df.idxmax(axis='columns')
+    y_df = y_df.reset_index()
+    y_df.columns = ['image', 'target']
+    df = df.merge(y_df, how='left', on='image')
+    df.set_index('image', inplace = True)
+
+    return df
+
+
+def get_X_y(df):
+    X = df.drop(['target'], axis=1)
+    y = df[['target']]
+    return X, y
