@@ -3,8 +3,11 @@ numpy
 seaborn
 matplotlib
 sklearn
-tensorflow
+tensorflow-macos==2.10.0; sys_platform == 'darwin' and 'ARM' in platform_version
+tensorflow==2.10.0; sys_platform == 'darwin' and 'X86' in platform_version
 keras
 pathlib
-shutil
+pytest-shutil
 albumentations
+os
+
