@@ -149,7 +149,7 @@ def get_X_y():
     '''
     X = pd.read_csv(os.environ.get('METADATA_CSV_PATH'))
     y = pd.read_csv(os.environ.get('TARGET_CSV_PATH'))
-    X_preprocessed = preprocessing_tabulaire(X)
+    X_preprocessed = preprocessing_X_tabulaire(X)
     df = X_preprocessed.merge(y, on='image', how='inner')
     X = df.drop(['target']) # à corriger en fonction de la fonction preprocessing
     y = df.target # à corriger en fonction de la fonction preprocessing
