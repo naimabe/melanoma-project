@@ -64,4 +64,10 @@ def train_model(model, X, y, batch_size=64, patience=5, validation_split=0.3):
     '''
 
 
-    
+def initialize_tabulaire_model():
+    model = models.Sequential()
+    model.add(layers.Dense(9, activation='softmax', input_dim=11))
+    model.compile(loss='categorical_crossentropy',
+              optimizer='adam',
+              metrics=['accuracy'])
+    return model

@@ -16,6 +16,7 @@ from tensorflow.keras.utils import image_dataset_from_directory, to_categorical
 
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
 
 def move_images():
     '''
@@ -155,7 +156,7 @@ def get_X_y():
     return X, y
 
 
-def preprocessing_tabulaire(X):
+def preprocessing_X_tabulaire():
 
     """
     Cette function fait preprocessing des données tabulaires
@@ -164,35 +165,67 @@ def preprocessing_tabulaire(X):
     return: X_preprocessed
 
     """
-    #load data from CSV
-    df = pd.read_csv(os.environ.get('METADATA_CSV_PATH'))
+    
+    #load data
+    df = pd.read_csv(Path('..', 'data', 'archive', 'ISIC_2019_Training_Metadata.csv'))
 
-    #Merge csv Target
+    #drop NaN and colummn 'lesion_'
 
-    #Drop NaNs
     df = df.dropna(axis=0, how='all', subset=['age_approx', 'anatom_site_general', 'sex'])
 
     #Drop colonne Lesion_id
     df = df.drop(['lesion_id'], axis=1)
 
-    #prepare columns to delete
+    #replace NaN per "Delete*"
     df.sex.replace(np.nan, "Delete", inplace=True)
     df.anatom_site_general.replace(np.nan, "Delete1", inplace=True)
+
+    #replace NaN per "mean" in column "age_approx"
 
     imputer = SimpleImputer(strategy="mean")
     imputer.fit(df[['age_approx']])
     df['age_approx'] = imputer.transform(df[['age_approx']])
-    df.sex.unique()
+
+    #transformation "string" to "numerique" in colummn "sex"
+    #making news columns
     ohe = OneHotEncoder(sparse = False, handle_unknown='ignore')
     ohe.fit(df[['sex']])
     sex_encoded = ohe.transform(df[['sex']])
     df[ohe.categories_[0]] = sex_encoded
 
-    df.anatom_site_general.unique()
+    #transformation "string" to "numerique" in colummn "anatom_site_general_encoded"
+    #making news columns
+
     ohe2 = OneHotEncoder(sparse = False, handle_unknown='ignore')
     ohe2.fit(df[['anatom_site_general']])
     anatom_site_general_encoded = ohe2.transform(df[['anatom_site_general']])
     df[ohe2.categories_[0]] = anatom_site_general_encoded
-    df = df.drop(columns=['anatom_site_general', 'sex', 'Delete', 'Delete1'])
 
-    return df
+
+    #transformation colummn "image" to Index
+    X_preprocessed = df.set_index('image', inplace = True)
+
+    #drop useless colummns
+    X_preprocessed = df.drop(columns=['anatom_site_general', 'sex', 'Delete', 'Delete1'])
+
+    #StandardScaler X data and transformation to DataFrame
+    s_scaler = StandardScaler()
+    X_preprocessed[:] = s_scaler.fit_transform(X_preprocessed)
+
+    return X_preprocessed
+
+
+def get_y():
+    y_df = pd.read_csv(Path('..', 'data', 'archive', 'ISIC_2019_Training_GroundTruth.csv'))
+    #y_df = y_df.set_index('image')
+    #y_df = y_df.idxmax(axis='columns')
+    #y_df = y_df.reset_index()
+    #y_df.columns = ['image', 'target']
+
+
+    df = df.merge(y_df, how='left', on='image')
+    df.set_index('image', inplace = True)
+    X = df.drop(['target'], axis=1)
+    y = df[['target']]
+    return X, y
+
