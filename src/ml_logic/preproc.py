@@ -124,7 +124,7 @@ def images_to_dataset():
 
     Returns: Tensor (but should return Numpy or Dataframe)
     '''
-    directory = os.environ.get('IMAGE_DATA_PATH')
+    directory = os.environ.get('SUBSET_DATA_PATH')
     dataset = image_dataset_from_directory(
                                     directory,
                                     labels='inferred',
@@ -185,6 +185,3 @@ def get_X_y(df):
     X = df.drop(['target'], axis=1)
     y = df[['target']]
     return X, y
-
-
-def create_small_test_dataset(sample_size):
