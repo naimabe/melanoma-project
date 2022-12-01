@@ -18,3 +18,4 @@ def get_data_from_bq():
     client = bigquery.Client()
     rows = client.list_rows(table, start_index=CHUNK_SIZE, max_results= x + CHUNK_SIZE)
     df = rows.to_dataframe()
+    ''' dsakjhfkjadh'''
