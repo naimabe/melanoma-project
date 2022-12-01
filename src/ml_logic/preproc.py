@@ -125,7 +125,7 @@ def images_to_dataset():
     Returns: Tensor (but should return Numpy or Dataframe)
     '''
     directory = os.environ.get('IMAGE_DATA_PATH')
-    dataset = image_dataset_from_directory(
+    dataset, dataset_val = image_dataset_from_directory(
                                     directory,
                                     labels='inferred',
                                     label_mode='int',
@@ -134,13 +134,13 @@ def images_to_dataset():
                                     batch_size=32,
                                     image_size=(64, 64),
                                     shuffle=True,
-                                    seed=None,
-                                    validation_split=None,
-                                    subset=None,
+                                    seed=123,
+                                    validation_split=0.3,
+                                    subset='both',
                                     follow_links=False,
                                     crop_to_aspect_ratio=False,
                                 )
-    return dataset
+    return dataset, dataset_val
 
 
 def preprocessing_tabulaire():
@@ -187,4 +187,4 @@ def get_X_y(df):
     return X, y
 
 
-def create_small_test_dataset(sample_size):
+#def create_small_test_dataset(sample_size):
