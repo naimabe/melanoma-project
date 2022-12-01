@@ -17,15 +17,15 @@ There are 9 categories of skin lesion.
 We want to create a model that predict which category a skin lesion is thank to a photo of the skin lesion and with some other informations (sex, age...).
 
 Description of each category :
-  MEL = Melanoma
-  NV = Melanocytic nevus
-  BCC = Basal cell carcinoma
-  AK = Actinic keratosis
-  BKL = Benign keratosis (solar lentigo / seborrheic keratosis / lichen planus-like keratosis)
-  DF = Dermatofibroma
-  VASC = Vascular lesion
-  SCC = Squamous cell carcinoma
-  UNK = None of the above
+  - MEL = Melanoma
+  - NV = Melanocytic nevus
+  - BCC = Basal cell carcinoma
+  - AK = Actinic keratosis
+  - BKL = Benign keratosis (solar lentigo / seborrheic keratosis / lichen planus-like keratosis)
+  - DF = Dermatofibroma
+  - VASC = Vascular lesion
+  - SCC = Squamous cell carcinoma
+  - UNK = None of the above
 
 
 ## Project setup
