@@ -118,13 +118,13 @@ def image_preprocessing_pipeline():
 
 
 
-def images_to_dataset():
+def images_to_dataset(ENVPATH):
     '''
     Function that sort and transform images into a tensorflow dataset according to their classes
 
     Returns: Tensor (but should return Numpy or Dataframe)
     '''
-    directory = os.environ.get('SUBSET_DATA_PATH')
+    directory = os.environ.get(f'{ENVPATH}')
     dataset, dataset_val = image_dataset_from_directory(
                                     directory,
                                     labels='inferred',
