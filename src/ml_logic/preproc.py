@@ -125,7 +125,7 @@ def images_to_dataset():
     Returns: Tensor (but should return Numpy or Dataframe)
     '''
     directory = os.environ.get('SUBSET_DATA_PATH')
-    dataset = image_dataset_from_directory(
+    dataset, dataset_val = image_dataset_from_directory(
                                     directory,
                                     labels='inferred',
                                     label_mode='int',
@@ -134,26 +134,51 @@ def images_to_dataset():
                                     batch_size=32,
                                     image_size=(64, 64),
                                     shuffle=True,
-                                    seed=None,
-                                    validation_split=None,
-                                    subset=None,
+                                    seed=123,
+                                    validation_split=0.3,
+                                    subset='both',
                                     follow_links=False,
                                     crop_to_aspect_ratio=False,
                                 )
-    return dataset
+    return dataset, dataset_val
+
+def get_X_y():
+    '''
+    Cette fonction lit les deux tableaux .csv et sort un X_Preprocessed et un y
+    '''
+    X = pd.read_csv(os.environ.get('METADATA_CSV_PATH'))
+    y = pd.read_csv(os.environ.get('TARGET_CSV_PATH'))
+    X_preprocessed = preprocessing_tabulaire(X)
+    df = X_preprocessed.merge(y, on='image', how='inner')
+    X = df.drop(['target']) # à corriger en fonction de la fonction preprocessing
+    y = df.target # à corriger en fonction de la fonction preprocessing
+    return X, y
 
 
-def preprocessing_tabulaire():
+def preprocessing_tabulaire(X):
 
     """
     Cette function fait preprocessing des données tabulaires
+    Args: X
+
+    return: X_preprocessed
 
     """
+    #load data from CSV
     df = pd.read_csv(os.environ.get('METADATA_CSV_PATH'))
+
+    #Merge csv Target
+
+    #Drop NaNs
     df = df.dropna(axis=0, how='all', subset=['age_approx', 'anatom_site_general', 'sex'])
+
+    #Drop colonne Lesion_id
     df = df.drop(['lesion_id'], axis=1)
+
+    #prepare columns to delete
     df.sex.replace(np.nan, "Delete", inplace=True)
     df.anatom_site_general.replace(np.nan, "Delete1", inplace=True)
+
     imputer = SimpleImputer(strategy="mean")
     imputer.fit(df[['age_approx']])
     df['age_approx'] = imputer.transform(df[['age_approx']])
@@ -169,19 +194,5 @@ def preprocessing_tabulaire():
     anatom_site_general_encoded = ohe2.transform(df[['anatom_site_general']])
     df[ohe2.categories_[0]] = anatom_site_general_encoded
     df = df.drop(columns=['anatom_site_general', 'sex', 'Delete', 'Delete1'])
-    y_df = pd.read_csv(os.environ.get('TARGET_CSV_PATH'))
-
-    y_df = y_df.set_index('image')
-    y_df = y_df.idxmax(axis='columns')
-    y_df = y_df.reset_index()
-    y_df.columns = ['image', 'target']
-    df = df.merge(y_df, how='left', on='image')
-    df.set_index('image', inplace = True)
 
     return df
-
-
-def get_X_y(df):
-    X = df.drop(['target'], axis=1)
-    y = df[['target']]
-    return X, y
