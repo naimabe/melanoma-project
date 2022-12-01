@@ -2,9 +2,12 @@ pandas
 numpy
 seaborn
 matplotlib
-sklearn
-tensorflow
-keras
+scikit-learn
 pathlib
-shutil
+ipykernel
+pytest
 albumentations
+imblearn
+tensorflow_datasets
+
+tensorflow==2.10.0

@@ -29,3 +29,11 @@ def initialise_EfficientNet_model():
 
 # def initialise_WagNet():
 #     model = Sequential()
+
+def initialize_tabulaire_model():
+    model = models.Sequential()
+    model.add(layers.Dense(9, activation='softmax', input_dim=11))
+    model.compile(loss='categorical_crossentropy',
+              optimizer='adam',
+              metrics=['accuracy'])
+    return model
