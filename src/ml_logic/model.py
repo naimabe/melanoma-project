@@ -62,3 +62,6 @@ def train_model(model, X, y, batch_size=64, patience=5, validation_split=0.3):
     KwArgs:
 
     '''
+
+
+    
