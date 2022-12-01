@@ -18,7 +18,6 @@ def initialise_EfficientNet_model():
                             trainable=False)
     #base_model.trainable = False
     base_model.add(layers.Flatten())
-    base_model.add(layers.Conv2D(64, activation='relu'))
     base_model.add(layers.Dense(9, activation='softmax'))
     model = base_model.compile(loss='categorical_crossentropy',
                                optimizer=tf.keras.optimizers.Adam,
