@@ -119,14 +119,15 @@ def image_preprocessing_pipeline():
 
 
 
-def images_to_dataset(ENVPATH):
+def images_to_dataset(ENVPATH, validation_split=True):
     '''
     Function that sort and transform images into a tensorflow dataset according to their classes
 
     Returns: Tensor (but should return Numpy or Dataframe)
     '''
     directory = os.environ.get(f'{ENVPATH}')
-    dataset, dataset_val = image_dataset_from_directory(
+    if validation_split:
+        dataset, dataset_val = image_dataset_from_directory(
                                     directory,
                                     labels='inferred',
                                     label_mode='int',
@@ -141,13 +142,29 @@ def images_to_dataset(ENVPATH):
                                     follow_links=False,
                                     crop_to_aspect_ratio=False,
                                 )
-    return dataset, dataset_val
+        return dataset, dataset_val
+    else:
+        dataset = image_dataset_from_directory(
+                                    directory,
+                                    labels='inferred',
+                                    label_mode='int',
+                                    class_names=None,
+                                    color_mode='rgb',
+                                    batch_size=32,
+                                    image_size=(64, 64),
+                                    shuffle=False,
+                                    seed=None,
+                                    validation_split=None,
+                                    subset= None,
+                                    follow_links=False,
+                                    crop_to_aspect_ratio=False,
+                                )
+        return dataset
 
 def get_X_y():
     '''
     Cette fonction lit les deux tableaux .csv et sort un X_Preprocessed et un y
     '''
-    X = pd.read_csv(os.environ.get('METADATA_CSV_PATH'))
     y = pd.read_csv(os.environ.get('TARGET_CSV_PATH'))
     X_preprocessed = preprocessing_X_tabulaire(X)
     df = X_preprocessed.merge(y, on='image', how='inner')
