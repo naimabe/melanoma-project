@@ -127,10 +127,18 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
+*.zip
 data
+data/
+bin
+bin/
+notebooks/
+#Test docs
+
+*.zip
+.DS_Store
 test image resizing.ipynb
-tests.ipynb
+*ipynb
 .env
 *.ipynb
 
