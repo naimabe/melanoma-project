@@ -18,20 +18,54 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 
-def move_images():
+def move_images_tertiaire():
     '''
-    Moves images from training set into 9 different folders, named according to the target category of each image.
+    Moves images from training set into 3 different folders, named according to the target category of each image.
     Args: None
     Returns: None
     '''
+    #Modify Target CSV according to target categories
     df = pd.read_csv(os.environ.get('TARGET_CSV_PATH'))
-    df.set_index('image')
-    for source in df.index:
-        for column in df.columns:
-            if df.loc[source][column] == 1:
-                source_path = os.environ.get('ORIGINAL_IMAGE_PATH')
-                destination_path = os.environ.get('IMAGE_DATA_PATH')
-                shutil.move(source_path, destination_path)
+    df = df.set_index('image')
+    df = df.rename(columns={'MEL' : 'danger', 'BCC' : 'consult', 'DF' : 'benign'})
+    df['benign'] = df['benign'] + df['NV'] + df['UNK'] + df['VASC']
+    df['danger'] = df['danger'] + df['SCC']
+    df['consult'] = df['consult'] + df['AK']
+    df = df.drop(columns=['NV', 'AK', 'BKL', 'VASC', 'SCC', 'UNK'], axis=0)
+    #Prepare source path
+    source_path = os.environ.get('ORIGINAL_IMAGE_PATH')
+    dir_list = ['danger', 'benign', 'consult']
+    # images_ = '../' + 'images'
+    image_path = '../data/images'
+    os.mkdir(image_path)
+    #iterate over source directories
+    for dir in dir_list:
+        #Create subset directories
+        path = os.path.join(image_path, dir)
+        os.mkdir(path)
+
+        for file_name in os.listdir(source_path):
+            if file_name.endswith('.jpg'):
+                if df.loc[file_name.removesuffix('.jpg')][dir] == 1:
+                    #Copy files into new directories
+                    shutil.copy(f'{source_path}/{file_name}',
+                            f'{image_path}/{dir}/{file_name}',follow_symlinks=True)
+
+
+# def move_images():
+#     '''
+#     Moves images from training set into 3 different folders, named according to the target category of each image.
+#     Args: None
+#     Returns: None
+#     '''
+#     df = pd.read_csv(os.environ.get('TARGET_CSV_PATH'))
+#     for source in df.index:
+#         for column in df.columns:
+#             if df.loc[source][column] == 1:
+#                 source_path = os.environ.get('ORIGINAL_IMAGE_PATH')
+#                 destination_path = os.environ.get('IMAGE_DATA_PATH')
+#                 shutil.move(source_path, destination_path)
+
 
 
 def load_images():

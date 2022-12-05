@@ -60,3 +60,18 @@ def create_dict_tnsr(ENVPATH):
             img_list.append(img.removesuffix('.jpg'))
 
     return dict(zip(img_list, tnsr_list))
+
+
+
+
+def target_cat():
+    '''
+    Fonction pour faciliter la transformation de la data en trois catégories
+    Args: None
+    Returns: dictionnary
+    '''
+    classes = {'MEL': 'danger', 'NV':'benign',
+                'BCC':'consult', 'AK' : 'consult',
+                'BKL' : 'benign', 'DF' : 'benign',
+                'VASC' : 'benign', 'SCC' : 'danger'}
+    return classes
