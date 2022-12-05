@@ -220,7 +220,7 @@ def preprocessing_X_tabulaire():
     #load data
     df = pd.read_csv(Path('..', 'data', 'archive', 'ISIC_2019_Training_Metadata.csv'))
 
-    #drop NaN and colummn 'lesion_'
+    #drop NaN and colummn 'lesion'
 
     df = df.dropna(axis=0, how='all', subset=['age_approx', 'anatom_site_general', 'sex'])
 
