@@ -11,11 +11,7 @@ def description_target():
     target_dataset = pd.read_csv('../data/ISIC_2019_Training_GroundTruth.csv')
     return target_dataset.describe()
 
-def visualization_barplot_target():
-    '''
-    Function that shows the distribution of the category of skin lesion
-    '''
-    plt.figure(figsize=(15,8))
+def dataset_creation_categories():
     target_dataset = pd.read_csv('../data/ISIC_2019_Training_GroundTruth.csv')
     target_dataset = target_dataset.set_index('image')
     target_dataset.columns = ['Melanoma', 'Melanocytic nevus', 'Basal cell carcinoma', 'Actinic keratosis', 'Benign keratosis', 'Dermatofibroma', 'Vascular lesion', 'Squamous cell carcinoma', 'None']
@@ -23,21 +19,24 @@ def visualization_barplot_target():
     target_dataset = target_dataset.value_counts()
     target_dataset = target_dataset.reset_index()
     target_dataset.columns = ['Melanoma type', 'count']
+    return target_dataset
+
+def visualization_barplot_target():
+    '''
+    Function that shows the distribution of the category of skin lesion
+    '''
+    plt.figure(figsize=(15,8))
+    data = dataset_creation_categories()
     # plot the distribution of the skin lesion
-    barplot = sns.barplot(target_dataset, x='Melanoma type', y='count')
-    barplot.set_xticklabels(barplot.get_xticklabels(), rotation = 45, size=10, horizontalalignment='right');
+    barplot = sns.barplot(data=data, x='Melanoma type', y='count').set(title='Distribution of Melanoma types')
+    #barplot.set_xticklabels(barplot.get_xticklabels(), rotation = 45, size=10, horizontalalignment='right');
     return barplot
 
 def visualization_pie_target():
     '''
     Function that returns a pie with the percentage of each category of skin lesion
     '''
-    target_dataset = pd.read_csv('../data/ISIC_2019_Training_GroundTruth.csv')
-    target_dataset = target_dataset.set_index('image')
-    target_dataset = target_dataset.idxmax(axis='columns')
-    target_dataset = target_dataset.value_counts()
-    target_dataset = target_dataset.reset_index()
-    target_dataset.columns = ['Melanoma type', 'count']
+    target_dataset = dataset_creation_categories()
     target_dataset['percentage'] = target_dataset['count']/target_dataset['count'].sum()*100
     target_dataset.round(decimals=2)
     labels = target_dataset['Melanoma type']
@@ -59,3 +58,27 @@ def visualization_images():
             plt.imshow(images[i].numpy().astype("uint8"))
             plt.title(class_names[labels[i]])
             plt.axis("off")
+
+
+def dataset_creation_dangerousness():
+    df = pd.read_csv('../data/ISIC_2019_Training_Metadata.csv')
+    target = pd.read_csv('../data/ISIC_2019_Training_GroundTruth.csv')
+    target_dataset = target.set_index('image')
+    target_dataset = target_dataset.idxmax(axis='columns')
+    target_dataset = target_dataset.reset_index()
+    target_dataset.columns = ['image', 'class']
+    df = df.merge(target_dataset, how='outer', on='image')
+    data = df.replace({'NV':'Benign', 'MEL':'Danger', 'BCC':'Consult', 'BKL':'Benign', 'AK':'Consult', 'SCC':'Danger', 'VASC':'Benign', 'DF':'Benign'})
+    data.rename(columns={'class': 'Melanoma type'}, inplace=True)
+    return data
+
+def visualization_dangerousness():
+    data = dataset_creation_dangerousness()
+    sns.countplot(data=data, x=data['Melanoma type'], order=['Benign', 'Consult', 'Danger'], palette=['#33a02c','#ff7f00', '#e31a1c']).set(title='Distribution of Benign, Dangerous and Potentially Dangerous Skin Lesion')
+
+
+def visualization_ages_vs_dangerousness():
+    data = dataset_creation_dangerousness()
+    plt.figure(figsize=(10,6))
+    sns.histplot(x="age_approx", hue="Melanoma type", data=data, kde=True, multiple="stack")
+    plt.show()
