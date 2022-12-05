@@ -119,13 +119,13 @@ def image_preprocessing_pipeline():
 
 
 
-def images_to_dataset(ENVPATH):
+def images_to_dataset(directory):
     '''
     Function that sort and transform images into a tensorflow dataset according to their classes
 
     Returns: Tensor (but should return Numpy or Dataframe)
     '''
-    directory = os.environ.get(f'{ENVPATH}')
+    #directory = os.environ.get(f'{ENVPATH}')
     dataset, dataset_val = image_dataset_from_directory(
                                     directory,
                                     labels='inferred',
@@ -167,7 +167,7 @@ def preprocessing_X_tabulaire():
     """
 
     #load data
-    df = pd.read_csv(Path('..', 'data', 'archive', 'ISIC_2019_Training_Metadata.csv'))
+    df = pd.read_csv('../data/ISIC_2019_Training_Metadata.csv')
 
     #drop NaN and colummn 'lesion_'
 
