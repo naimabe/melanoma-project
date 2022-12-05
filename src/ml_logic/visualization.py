@@ -15,6 +15,7 @@ def visualization_barplot_target():
     '''
     Function that shows the distribution of the category of skin lesion
     '''
+    plt.figure(figsize=(15,8))
     target_dataset = pd.read_csv('../data/ISIC_2019_Training_GroundTruth.csv')
     target_dataset = target_dataset.set_index('image')
     target_dataset.columns = ['Melanoma', 'Melanocytic nevus', 'Basal cell carcinoma', 'Actinic keratosis', 'Benign keratosis', 'Dermatofibroma', 'Vascular lesion', 'Squamous cell carcinoma', 'None']
@@ -42,7 +43,7 @@ def visualization_pie_target():
     labels = target_dataset['Melanoma type']
     sizes = target_dataset.percentage
     plt.figure(figsize=(15, 15))
-    pieplot = plt.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=False, labeldistance=1.05, pctdistance=0.7);
+    pieplot = plt.pie(sizes, labels=labels, autopct='%5.5f%%', shadow=False, labeldistance=1.05, pctdistance=0.7);
     return pieplot
 
 def visualization_images():

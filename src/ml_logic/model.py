@@ -17,7 +17,7 @@ def load_Model_G():
         Args: None
         return: pre-trained model
         '''
-        model = EfficientNetV2B0(include_top=False,
+        model = EfficientNetB0(include_top=False,
                             weights='imagenet',
                             input_shape=(64, 64, 3))
         return model
@@ -65,7 +65,7 @@ def train_model(model, X, y, batch_size=64, patience=5, validation_split=0.3):
 
 
 def initialize_tabulaire_model():
-    model = models.Sequential()
+    model = Sequential()
     model.add(layers.Dense(9, activation='softmax', input_dim=11))
     model.compile(loss='categorical_crossentropy',
               optimizer='adam',
