@@ -28,7 +28,7 @@ def move_images_tertiaire():
     df = pd.read_csv(os.environ.get('TARGET_CSV_PATH'))
     df = df.set_index('image')
     df = df.rename(columns={'MEL' : 'danger', 'BCC' : 'consult', 'DF' : 'benign'})
-    df['benign'] = df['benign'] + df['NV'] + df['UNK'] + df['VASC']
+    df['benign'] = df['benign'] + df['NV'] + df['UNK'] + df['VASC'] + df['BKL']
     df['danger'] = df['danger'] + df['SCC']
     df['consult'] = df['consult'] + df['AK']
     df = df.drop(columns=['NV', 'AK', 'BKL', 'VASC', 'SCC', 'UNK'], axis=0)

@@ -80,5 +80,12 @@ def visualization_dangerousness():
 def visualization_ages_vs_dangerousness():
     data = dataset_creation_dangerousness()
     plt.figure(figsize=(10,6))
-    sns.histplot(x="age_approx", hue="Melanoma type", data=data, kde=True, multiple="stack")
+    sns.histplot(x="age_approx", hue="Melanoma type", hue_order=['Benign', 'Consult', 'Danger'], palette=['#33a02c','#ff7f00', '#e31a1c'], data=data, kde=True, multiple="stack")
+    plt.show()
+
+def visualization_anatom_vs_dangerousness():
+    data = dataset_creation_dangerousness()
+    plt.figure(figsize=(14,6))
+    sns.countplot(x="anatom_site_general", hue="Melanoma type", hue_order=['Benign', 'Consult', 'Danger'], palette=['#33a02c','#ff7f00', '#e31a1c'], data=data)
+    plt.legend(loc="upper right")
     plt.show()
