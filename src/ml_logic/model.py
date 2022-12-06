@@ -5,6 +5,8 @@ from keras.callbacks import EarlyStopping
 from keras.models import Model, Sequential, Functional
 import keras
 
+from keras.models import Model, Sequential
+import os
 
 def load_Model_G():
 
@@ -54,8 +56,9 @@ def load_Model_G():
         # model.add_metric('recall', recall_score())
 
         model.compile(loss='sparse_categorical_crossentropy',
-                                optimizer=tf.keras.optimizers.Adam(learning_rate=0.00001),
-                                metrics=['accuracy'])
+                        optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
+                        metrics=['accuracy'])
+
         return model
 
     model = add_last_layers()
@@ -111,3 +114,13 @@ def model_concat():
                             optimizer=tf.keras.optimizers.Adam(learning_rate=0.00001),
                             metrics=['accuracy'])
     return model
+
+def train_model(model):
+    X, y = get_X_y()
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=3)
+    history = model.fit(X_train, y_train,
+              batch_size=32,
+              epochs=10,
+              validation_split=0.3,
+              verbose=0)
+    return model,X_test,y_test

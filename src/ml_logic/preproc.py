@@ -51,9 +51,6 @@ def move_images_tertiaire():
                     shutil.copy(f'{source_path}/{file_name}',
                             f'{image_path}/{dir}/{file_name}',follow_symlinks=True)
 
-def remove_NaN_images(ENVPATH):
-    X_tab = preprocessing_X_tabulaire(ENVPATH)
-    
 
 def load_images():
     '''
@@ -233,8 +230,9 @@ def preprocessing_X_tabulaire(ENVPATH):
 
     #load data
     df = pd.read_csv(os.environ.get(f'{ENVPATH}'))
+    df = pd.read_csv('../data/ISIC_2019_Training_Metadata.csv')
 
-    #drop NaN and colummn 'lesion_'
+    #drop NaN and colummn 'lesion'
 
     df = df.dropna(axis=0, how='all', subset=['age_approx', 'anatom_site_general', 'sex'])
 
@@ -280,18 +278,17 @@ def preprocessing_X_tabulaire(ENVPATH):
     return X_preprocessed
 
 
-def get_y():
-    y_df = pd.read_csv(Path('..', 'data', 'archive', 'ISIC_2019_Training_GroundTruth.csv'))
-    #y_df = y_df.set_index('image')
-    #y_df = y_df.idxmax(axis='columns')
-    #y_df = y_df.reset_index()
-    #y_df.columns = ['image', 'target']
-
-
-    df = df.merge(y_df, how='left', on='image')
-    df.set_index('image', inplace = True)
-    X = df.drop(['target'], axis=1)
-    y = df[['target']]
+def get_X_y():
+    '''
+    Cette fonction lit les deux tableaux .csv et sort un X_Preprocessed et un y
+    '''
+    y_df = pd.read_csv('../data/archive/ISIC_2019_Training_GroundTruth.csv')
+    X_preproc = preprocessing_X_tabulaire()
+    y_df = y_df.set_index('image')
+    X_y = X_preproc.merge(y_df, how='left', on='image')
+    target = ['MEL', 'NV', 'BCC', 'AK', 'BKL', 'DF', 'VASC', 'SCC', 'UNK']
+    X = X_y.drop(target, axis = 1)
+    y = X_y[target]
     return X, y
 
 

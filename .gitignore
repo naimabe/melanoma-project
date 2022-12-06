@@ -140,3 +140,5 @@ notebooks/
 test image resizing.ipynb
 *ipynb
 .env
+*.ipynb
+
