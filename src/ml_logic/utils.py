@@ -75,3 +75,5 @@ def target_cat():
                 'BKL' : 'benign', 'DF' : 'benign',
                 'VASC' : 'benign', 'SCC' : 'danger'}
     return classes
+
+
