@@ -2,6 +2,9 @@ import tensorflow as tf
 from keras import layers
 from keras.applications import EfficientNetB0
 from keras.callbacks import EarlyStopping
+from keras.models import Model, Sequential, Functional
+import keras
+
 from keras.models import Model, Sequential
 import os
 
@@ -84,7 +87,34 @@ def model_concat():
     '''
     Cette fonction fait la concatenation du modèle tabulaire avec le modèle images.
     '''
-    
+    input_1 = keras.Input(shape=(64, 64, 3))
+
+    base_model = EfficientNetB0(include_top=False,
+                                weights='imagenet',
+                                input_shape=(64, 64, 3))
+    base_model.trainable = True
+    outeff = base_model(input_1)
+    flattening_layer = layers.Flatten()(outeff)
+    dense_layer_01 = layers.Dense(32, activation='relu')(flattening_layer)
+    dropout_01 = layers.Dropout(0.5)(dense_layer_01)
+
+    # The other input
+    input_2 = layers.Input(shape=(11,))
+    dense_2 = layers.Dense(5, activation='relu')(input_2)
+
+    # Concatenate
+    concat = layers.concatenate([dropout_01, dense_2])
+
+    #Prediction layer
+    prediction_layer = layers.Dense(3, activation='softmax')(concat)
+
+    model = Functional(inputs=[input_1, input_2], outputs=[prediction_layer ])
+
+    model.compile(loss='sparse_categorical_crossentropy',
+                            optimizer=tf.keras.optimizers.Adam(learning_rate=0.00001),
+                            metrics=['accuracy'])
+    return model
+
 def train_model(model):
     X, y = get_X_y()
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=3)
