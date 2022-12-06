@@ -244,7 +244,7 @@ def preprocessing_X_tabulaire():
     """
 
     #load data
-    df = pd.read_csv(Path('..', 'data', 'archive', 'ISIC_2019_Training_Metadata.csv'))
+    df = pd.read_csv('../data/ISIC_2019_Training_Metadata.csv')
 
     #drop NaN and colummn 'lesion'
 

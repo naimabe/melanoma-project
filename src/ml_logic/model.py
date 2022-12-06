@@ -3,7 +3,7 @@ from keras import layers
 from keras.applications import EfficientNetB0
 from keras.callbacks import EarlyStopping
 from keras.models import Model, Sequential
-
+import os
 
 def load_Model_G():
 
@@ -53,8 +53,9 @@ def load_Model_G():
         # model.add_metric('recall', recall_score())
 
         model.compile(loss='sparse_categorical_crossentropy',
-                                optimizer=tf.keras.optimizers.Adam(learning_rate=0.00001),
-                                metrics=['accuracy'])
+                        optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
+                        metrics=['accuracy'])
+
         return model
 
     model = add_last_layers()
