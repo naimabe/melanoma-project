@@ -6,10 +6,6 @@ from keras.models import Model, Sequential
 
 
 def load_Model_G():
-    '''
-    Cette fonction instantie un modèle EfficientNet pre-entrainé et y ajoute des layers Dense
-    Elle sera utilisée pour prédire sur la data sous forme d'images.
-    '''
 
     def load_efficientnet():
         '''
@@ -28,7 +24,7 @@ def load_Model_G():
         Args: None
         return: pre-trained model
         '''
-        model.trainable = False
+        model.trainable = True
         return model
 
     def add_last_layers():
@@ -40,14 +36,24 @@ def load_Model_G():
         base_model = load_efficientnet()
         base_model = set_nontrainable_layers(base_model)
         flattening_layer = layers.Flatten()
-        prediction_layer = layers.Dense(9, activation='softmax')
+        dense_layer_01 = layers.Dense(32, activation='relu')
+        dropout_01 = layers.Dropout(0.5)
+        # dense_layer_02 = layers.Dense(30, activation='relu')
+        # dropout_02 = layers.Dropout(0.5)
+        prediction_layer = layers.Dense(3, activation='softmax')
 
         model = Sequential([base_model,
                             flattening_layer,
+                            dense_layer_01,
+                            dropout_01,
+                            # dense_layer_02,
+                            # dropout_02,
                             prediction_layer])
 
+        # model.add_metric('recall', recall_score())
+
         model.compile(loss='sparse_categorical_crossentropy',
-                                optimizer=tf.keras.optimizers.Adam(learning_rate=float(os.environ.get('LEARNING_RATE'))),
+                                optimizer=tf.keras.optimizers.Adam(learning_rate=0.00001),
                                 metrics=['accuracy'])
         return model
 
@@ -73,6 +79,11 @@ def initialize_tabulaire_model():
     return model
 
 
+def model_concat():
+    '''
+    Cette fonction fait la concatenation du modèle tabulaire avec le modèle images.
+    '''
+    
 def train_model(model):
     X, y = get_X_y()
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=3)

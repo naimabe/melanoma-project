@@ -12,7 +12,7 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 from imblearn.over_sampling import SMOTE
 from PIL import Image
-from tensorflow.keras.utils import image_dataset_from_directory, to_categorical
+from keras.utils import image_dataset_from_directory, to_categorical
 
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.impute import SimpleImputer
@@ -28,7 +28,7 @@ def move_images_tertiaire():
     df = pd.read_csv(os.environ.get('TARGET_CSV_PATH'))
     df = df.set_index('image')
     df = df.rename(columns={'MEL' : 'danger', 'BCC' : 'consult', 'DF' : 'benign'})
-    df['benign'] = df['benign'] + df['NV'] + df['UNK'] + df['VASC']
+    df['benign'] = df['benign'] + df['NV'] + df['UNK'] + df['VASC'] + df['BKL']
     df['danger'] = df['danger'] + df['SCC']
     df['consult'] = df['consult'] + df['AK']
     df = df.drop(columns=['NV', 'AK', 'BKL', 'VASC', 'SCC', 'UNK'], axis=0)
@@ -43,14 +43,13 @@ def move_images_tertiaire():
         #Create subset directories
         path = os.path.join(image_path, dir)
         os.mkdir(path)
-
+        #copy files
         for file_name in os.listdir(source_path):
             if file_name.endswith('.jpg'):
                 if df.loc[file_name.removesuffix('.jpg')][dir] == 1:
                     #Copy files into new directories
                     shutil.copy(f'{source_path}/{file_name}',
                             f'{image_path}/{dir}/{file_name}',follow_symlinks=True)
-
 
 # def move_images():
 #     '''
@@ -144,13 +143,10 @@ def balance_data(X):
     return X_balanced
 
 
-
-
 def image_preprocessing_pipeline():
     '''
 
     '''
-
 
 
 def images_to_dataset(ENVPATH, validation_split=True):
@@ -161,7 +157,7 @@ def images_to_dataset(ENVPATH, validation_split=True):
     '''
     directory = os.environ.get(f'{ENVPATH}')
     if validation_split:
-        dataset, dataset_val = image_dataset_from_directory(
+        """dataset, dataset_val = image_dataset_from_directory(
                                     directory,
                                     labels='inferred',
                                     label_mode='int',
@@ -173,6 +169,36 @@ def images_to_dataset(ENVPATH, validation_split=True):
                                     seed=123,
                                     validation_split=0.3,
                                     subset='both',
+                                    follow_links=False,
+                                    crop_to_aspect_ratio=False,
+                                )"""
+        dataset = image_dataset_from_directory(
+                                    directory,
+                                    labels='inferred',
+                                    label_mode='int',
+                                    class_names=None,
+                                    color_mode='rgb',
+                                    batch_size=32,
+                                    image_size=(64, 64),
+                                    shuffle=True,
+                                    seed=123,
+                                    validation_split=0.3,
+                                    subset='training',
+                                    follow_links=False,
+                                    crop_to_aspect_ratio=False,
+                                )
+        dataset_val = image_dataset_from_directory(
+                                    directory,
+                                    labels='inferred',
+                                    label_mode='int',
+                                    class_names=None,
+                                    color_mode='rgb',
+                                    batch_size=32,
+                                    image_size=(64, 64),
+                                    shuffle=True,
+                                    seed=123,
+                                    validation_split=0.3,
+                                    subset='validation',
                                     follow_links=False,
                                     crop_to_aspect_ratio=False,
                                 )
