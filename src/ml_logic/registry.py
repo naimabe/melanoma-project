@@ -4,10 +4,9 @@ import glob
 import os
 import time
 import pickle
+import tensorflow
 
-from colorama import Fore, Style
-
-from keras import Model, models
+from tensorflow.keras import Model, models
 
 
 def save_model(model: Model = None) -> None:
