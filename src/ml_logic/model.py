@@ -83,3 +83,13 @@ def model_concat():
     '''
     Cette fonction fait la concatenation du modèle tabulaire avec le modèle images.
     '''
+    
+def train_model(model):
+    X, y = get_X_y()
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=3)
+    history = model.fit(X_train, y_train,
+              batch_size=32,
+              epochs=10,
+              validation_split=0.3,
+              verbose=0)
+    return model,X_test,y_test
