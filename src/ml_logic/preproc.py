@@ -51,21 +51,9 @@ def move_images_tertiaire():
                     shutil.copy(f'{source_path}/{file_name}',
                             f'{image_path}/{dir}/{file_name}',follow_symlinks=True)
 
-# def move_images():
-#     '''
-#     Moves images from training set into 3 different folders, named according to the target category of each image.
-#     Args: None
-#     Returns: None
-#     '''
-#     df = pd.read_csv(os.environ.get('TARGET_CSV_PATH'))
-#     for source in df.index:
-#         for column in df.columns:
-#             if df.loc[source][column] == 1:
-#                 source_path = os.environ.get('ORIGINAL_IMAGE_PATH')
-#                 destination_path = os.environ.get('IMAGE_DATA_PATH')
-#                 shutil.move(source_path, destination_path)
-
-
+def remove_NaN_images(ENVPATH):
+    X_tab = preprocessing_X_tabulaire(ENVPATH)
+    
 
 def load_images():
     '''
@@ -233,7 +221,7 @@ def get_X_y():
     return X, y
 
 
-def preprocessing_X_tabulaire():
+def preprocessing_X_tabulaire(ENVPATH):
 
     """
     Cette function fait preprocessing des données tabulaires
@@ -244,7 +232,7 @@ def preprocessing_X_tabulaire():
     """
 
     #load data
-    df = pd.read_csv(Path('..', 'data', 'archive', 'ISIC_2019_Training_Metadata.csv'))
+    df = pd.read_csv(os.environ.get(f'{ENVPATH}'))
 
     #drop NaN and colummn 'lesion_'
 

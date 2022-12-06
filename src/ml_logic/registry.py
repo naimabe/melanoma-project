@@ -1,12 +1,4 @@
-# from src.ml_logic.params import LOCAL_REGISTRY_PATH
-
-import glob
 import os
-import time
-import pickle
-
-from colorama import Fore, Style
-
 from keras import Model, models
 
 
