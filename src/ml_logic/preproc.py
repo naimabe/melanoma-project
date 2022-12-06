@@ -12,7 +12,7 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 from imblearn.over_sampling import SMOTE
 from PIL import Image
-from tensorflow.keras.utils import image_dataset_from_directory, to_categorical
+from keras.utils import image_dataset_from_directory, to_categorical
 
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.impute import SimpleImputer
@@ -43,14 +43,13 @@ def move_images_tertiaire():
         #Create subset directories
         path = os.path.join(image_path, dir)
         os.mkdir(path)
-
+        #copy files
         for file_name in os.listdir(source_path):
             if file_name.endswith('.jpg'):
                 if df.loc[file_name.removesuffix('.jpg')][dir] == 1:
                     #Copy files into new directories
                     shutil.copy(f'{source_path}/{file_name}',
                             f'{image_path}/{dir}/{file_name}',follow_symlinks=True)
-
 
 # def move_images():
 #     '''
@@ -144,13 +143,10 @@ def balance_data(X):
     return X_balanced
 
 
-
-
 def image_preprocessing_pipeline():
     '''
 
     '''
-
 
 
 def images_to_dataset(ENVPATH, validation_split=True):
@@ -161,7 +157,7 @@ def images_to_dataset(ENVPATH, validation_split=True):
     '''
     directory = os.environ.get(f'{ENVPATH}')
     if validation_split:
-        dataset, dataset_val = image_dataset_from_directory(
+        """dataset, dataset_val = image_dataset_from_directory(
                                     directory,
                                     labels='inferred',
                                     label_mode='int',
@@ -173,6 +169,36 @@ def images_to_dataset(ENVPATH, validation_split=True):
                                     seed=123,
                                     validation_split=0.3,
                                     subset='both',
+                                    follow_links=False,
+                                    crop_to_aspect_ratio=False,
+                                )"""
+        dataset = image_dataset_from_directory(
+                                    directory,
+                                    labels='inferred',
+                                    label_mode='int',
+                                    class_names=None,
+                                    color_mode='rgb',
+                                    batch_size=32,
+                                    image_size=(64, 64),
+                                    shuffle=True,
+                                    seed=123,
+                                    validation_split=0.3,
+                                    subset='training',
+                                    follow_links=False,
+                                    crop_to_aspect_ratio=False,
+                                )
+        dataset_val = image_dataset_from_directory(
+                                    directory,
+                                    labels='inferred',
+                                    label_mode='int',
+                                    class_names=None,
+                                    color_mode='rgb',
+                                    batch_size=32,
+                                    image_size=(64, 64),
+                                    shuffle=True,
+                                    seed=123,
+                                    validation_split=0.3,
+                                    subset='validation',
                                     follow_links=False,
                                     crop_to_aspect_ratio=False,
                                 )
@@ -220,7 +246,7 @@ def preprocessing_X_tabulaire():
     #load data
     df = pd.read_csv('../data/ISIC_2019_Training_Metadata.csv')
 
-    #drop NaN and colummn 'lesion_'
+    #drop NaN and colummn 'lesion'
 
     df = df.dropna(axis=0, how='all', subset=['age_approx', 'anatom_site_general', 'sex'])
 
@@ -266,18 +292,17 @@ def preprocessing_X_tabulaire():
     return X_preprocessed
 
 
-def get_y():
-    y_df = pd.read_csv(Path('..', 'data', 'archive', 'ISIC_2019_Training_GroundTruth.csv'))
-    #y_df = y_df.set_index('image')
-    #y_df = y_df.idxmax(axis='columns')
-    #y_df = y_df.reset_index()
-    #y_df.columns = ['image', 'target']
-
-
-    df = df.merge(y_df, how='left', on='image')
-    df.set_index('image', inplace = True)
-    X = df.drop(['target'], axis=1)
-    y = df[['target']]
+def get_X_y():
+    '''
+    Cette fonction lit les deux tableaux .csv et sort un X_Preprocessed et un y
+    '''
+    y_df = pd.read_csv('../data/archive/ISIC_2019_Training_GroundTruth.csv')
+    X_preproc = preprocessing_X_tabulaire()
+    y_df = y_df.set_index('image')
+    X_y = X_preproc.merge(y_df, how='left', on='image')
+    target = ['MEL', 'NV', 'BCC', 'AK', 'BKL', 'DF', 'VASC', 'SCC', 'UNK']
+    X = X_y.drop(target, axis = 1)
+    y = X_y[target]
     return X, y
 
 
