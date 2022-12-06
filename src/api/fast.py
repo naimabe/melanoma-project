@@ -25,10 +25,11 @@ def root():
 
 @app.get("/predict")
 
-# def predict(image, str, int, str ) -> str:
+#  def predict(image, str, int, str ) -> str:
 #     df,extra_info = request_gopluslab(token_address)
 #     model = app.state.model
 #     df = clean_nouveau_token(df)
 #     status = prediction(model, df, extra_info)
 #     report = generate_report(extra_info, status)
 #     return report
+

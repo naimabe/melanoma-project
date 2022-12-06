@@ -18,13 +18,11 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 
-def move_images_tertiaire():
+
+def modify_target_csv():
     '''
-    Moves images from training set into 3 different folders, named according to the target category of each image.
-    Args: None
-    Returns: None
+    Prepares data for the move_images_tertiaire function
     '''
-    #Modify Target CSV according to target categories
     df = pd.read_csv(os.environ.get('TARGET_CSV_PATH'))
     df = df.set_index('image')
     df = df.rename(columns={'MEL' : 'danger', 'BCC' : 'consult', 'DF' : 'benign'})
@@ -32,12 +30,27 @@ def move_images_tertiaire():
     df['danger'] = df['danger'] + df['SCC']
     df['consult'] = df['consult'] + df['AK']
     df = df.drop(columns=['NV', 'AK', 'BKL', 'VASC', 'SCC', 'UNK'], axis=0)
+    return df
+
+def move_images_tertiaire():
+    '''
+    Moves images from training set into 3 different folders, named according to the target category of each image.
+    Args: None
+    Returns: None
+    '''
+    #Create metadata dataframe
+    X_tab = preprocessing_X_tabulaire('METADATA_CSV_PATH')
+
+    #Modify Target CSV according to target categories
+    df = modify_target_csv()
+
     #Prepare source path
     source_path = os.environ.get('ORIGINAL_IMAGE_PATH')
     dir_list = ['danger', 'benign', 'consult']
     # images_ = '../' + 'images'
     image_path = '../data/images'
     os.mkdir(image_path)
+
     #iterate over source directories
     for dir in dir_list:
         #Create subset directories
@@ -45,36 +58,14 @@ def move_images_tertiaire():
         os.mkdir(path)
         #copy files
         for file_name in os.listdir(source_path):
-            if file_name.endswith('.jpg'):
-                if df.loc[file_name.removesuffix('.jpg')][dir] == 1:
-                    #Copy files into new directories
-                    shutil.copy(f'{source_path}/{file_name}',
-                            f'{image_path}/{dir}/{file_name}',follow_symlinks=True)
-
-
-def load_images():
-    '''
-    Loads images from various categorical folders
-    Transforms them into Numpy arrays and then dataframes
-    Adds "image_name" as X feature and origin folder as y feature.
-
-    Args: None
-
-    Returns: Dataframe
-
-    '''
-    classes = {'MEL':0, 'NV':1,
-                'BCC':2, 'AK' : 3,
-                'BKL' : 4, 'DF' : 5,
-                'VASC' : 6, 'SCC' : 7,
-                'UNK' : 8}
-    data_path = os.environ.get('DATA_PATH')
-
-
-    for (cl, i) in classes.items():
-        break
-    pass
-
+            if file_name.removesuffix('.jpg') in X_tab.index:
+                if file_name.endswith('.jpg'):
+                    if df.loc[file_name.removesuffix('.jpg')][dir] == 1:
+                        #Copy files into new directories
+                        shutil.copy(f'{source_path}/{file_name}',
+                                f'{image_path}/{dir}/{file_name}',follow_symlinks=True)
+            else:
+                pass
 
 def augmentation_pipeline(img):
 
@@ -128,35 +119,16 @@ def balance_data(X):
     return X_balanced
 
 
-def image_preprocessing_pipeline():
-    '''
-
-    '''
-
-
 def images_to_dataset(ENVPATH, validation_split=True):
     '''
     Function that sort and transform images into a tensorflow dataset according to their classes
 
     Returns: Tensor (but should return Numpy or Dataframe)
     '''
+
+
     directory = os.environ.get(f'{ENVPATH}')
     if validation_split:
-        """dataset, dataset_val = image_dataset_from_directory(
-                                    directory,
-                                    labels='inferred',
-                                    label_mode='int',
-                                    class_names=None,
-                                    color_mode='rgb',
-                                    batch_size=32,
-                                    image_size=(64, 64),
-                                    shuffle=True,
-                                    seed=123,
-                                    validation_split=0.3,
-                                    subset='both',
-                                    follow_links=False,
-                                    crop_to_aspect_ratio=False,
-                                )"""
         dataset = image_dataset_from_directory(
                                     directory,
                                     labels='inferred',
@@ -206,6 +178,7 @@ def images_to_dataset(ENVPATH, validation_split=True):
                                 )
         return dataset
 
+
 def get_X_y():
     '''
     Cette fonction lit les deux tableaux .csv et sort un X_Preprocessed et un y
@@ -229,8 +202,7 @@ def preprocessing_X_tabulaire(ENVPATH):
     """
 
     #load data
-    df = pd.read_csv(os.environ.get(f'{ENVPATH}'))
-    df = pd.read_csv('../data/ISIC_2019_Training_Metadata.csv')
+    df = pd.read_csv(os.environ.get(ENVPATH))
 
     #drop NaN and colummn 'lesion'
 

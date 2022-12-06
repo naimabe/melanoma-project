@@ -1,5 +1,7 @@
 import os
 import shutil
+from src.ml_logic.utils import create_dict_img
+from src.ml_logic.preproc import preprocessing_X_tabulaire
 
 
 def create_subset():
@@ -25,3 +27,23 @@ def create_subset():
             #Copy files into new directories
             shutil.copy(f'{source_path}/{dir}/{file_name}',
                         f'{subset_path}/{dir}/{file_name}',follow_symlinks=True)
+
+
+
+def create_tab_subset():
+    '''
+    Creates a subset dataframe to match the image_subset
+
+    '''
+    subset_dict = create_dict_img('IMAGE_DATA_PATH')
+    X_tab = preprocessing_X_tabulaire('METADATA_CSV_PATH')
+
+    for x in subset_dict.keys():
+        if x in X_tab.index:
+            X_tab_subset = X_tab.loc[x]
+        else:
+            X_tab.drop(labels=x, axis='index')
+
+
+    #X_tab_subset = X_tab.drop(labels=)
+    X_tab_subset

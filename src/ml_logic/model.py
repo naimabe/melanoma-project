@@ -82,7 +82,6 @@ def initialize_tabulaire_model():
               metrics=['accuracy'])
     return model
 
-
 def model_concat():
     '''
     Cette fonction fait la concatenation du modèle tabulaire avec le modèle images.
@@ -124,3 +123,5 @@ def train_model(model):
               validation_split=0.3,
               verbose=0)
     return model,X_test,y_test
+
+def predict():
