@@ -141,4 +141,8 @@ test image resizing.ipynb
 *ipynb
 .env
 *.ipynb
+
+
+notebooks/test-dejan.ipynb
+
 *.jpeg
