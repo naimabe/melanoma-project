@@ -3,6 +3,12 @@ import shutil
 from src.ml_logic.utils import create_dict_img
 from src.ml_logic.preproc import preprocessing_X_tabulaire
 
+import os
+import shutil
+
+from src.ml_logic.utils import create_dict_img
+
+
 
 def create_subset():
     '''

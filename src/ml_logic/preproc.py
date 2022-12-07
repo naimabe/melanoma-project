@@ -1,18 +1,16 @@
 
 import os
 import shutil
-from pathlib import Path
 
+from os import listdir
 import albumentations as A
 import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-import tensorflow_datasets as tfds
 from imblearn.over_sampling import SMOTE
-from PIL import Image
-from keras.utils import image_dataset_from_directory, to_categorical
+from keras.utils import image_dataset_from_directory
 
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.impute import SimpleImputer
@@ -125,7 +123,6 @@ def images_to_dataset(ENVPATH, validation_split=True, image_size=(64, 64)):
 
     Returns: Tensor (but should return Numpy or Dataframe)
     '''
-
 
     directory = os.environ.get(f'{ENVPATH}')
     if validation_split:
@@ -264,4 +261,108 @@ def get_X_y():
     return X, y
 
 
-#def create_small_test_dataset(sample_size):
+def preprocessing_pipeline(ENVPATH, jumpfile=1):
+    '''
+    One function that loads tabular metadata, target information and images, turns all three into tensors and lines them up, thus preparing them for the concatenated model to receive as training data.
+
+    ARGS:
+        - ENVPATH: environment variable path leading to the image data
+        - jumpfile: if the function returns an error it is likely that there is a hidden file in the image directory, jumpfile=1 will skip that file. If there is no hidden file, then set jumpfile=0 so as to avoid it missing some of your data.
+
+    Returns:
+        - img_input : a numpy array of all image tensors
+        - tab_input : a numpy array of all tabular data
+        - target_input : a numpy array of the target data
+
+    '''
+
+    #load tabular_data
+    # if ENVPATH == 'SUBSET_DATA_PATH':
+    #     X_tab = create_tab_subset()
+    X_tab = preprocessing_X_tabulaire('METADATA_CSV_PATH')
+
+    #create image dictionary adapted to the data
+    img_dict = create_dict_img(ENVPATH, jumpfile=jumpfile)
+
+    #Create tensor dictionnary
+    tnsr_dict = create_dict_tnsr(ENVPATH)
+
+    #Create Target dictionary
+    target_dict = {'benign' : 0.0,
+                    'consult' : 1.0,
+                    'danger' : 2.0}
+
+    #add tensor and target columns to tabular data to keep all data sorted
+    X_tab['img_tnsr'] = X_tab.index.map(tnsr_dict)
+    X_tab['target'] = X_tab.index.map(img_dict)
+
+    #Tabular data as tensor
+    tab_input = tf.convert_to_tensor(X_tab.drop(columns=['img_tnsr', 'target']))
+
+    #target data as tensor
+    target_input = tf.convert_to_tensor(X_tab.target.map(target_dict))
+
+    #Image data as tensor
+    tensor_list = X_tab.img_tnsr.tolist()
+    tnsr_list = [x / 255 for x in tensor_list]
+    img_input = tf.convert_to_tensor(tnsr_list)
+
+    return img_input, tab_input, target_input
+
+
+def create_dict_img(ENVPATH,jumpfile=0):
+    '''
+    creates two dictionnaries :
+
+    dict_img
+        keys = image IDs
+        values = category
+
+    dict_tnsr
+        keys = image IDs
+        values = tensor
+
+    ARGS: 'ENVPATH' : Environment variable leading to images folder path
+
+    returns: dict
+    '''
+    #instantiate lists and get basic path to images folder
+    images = os.environ.get(ENVPATH)
+    dict_img = {}
+    img_list = []
+
+    #loop over folders
+    for cat in listdir(images)[jumpfile:]:
+        #loop over files
+        for img in listdir(f'{images}/{cat}'):
+            img_list.append(img)
+            dict_img[img.removesuffix('.jpg')] = cat #create dict and remove ".jpg"
+
+    return dict_img
+
+
+def create_dict_tnsr(ENVPATH):
+    '''
+    create dictionnary:
+    keys = image IDs
+    values = tensor
+
+    ARGS: 'ENVPATH' : Environment variable leading to images folder path
+
+    returns: dict
+    '''
+    images_tnsr = list(images_to_dataset(ENVPATH,
+                                    validation_split=False)\
+                                        .as_numpy_iterator())
+    images = os.environ.get(ENVPATH)
+    tnsr_list = []
+    img_list = []
+    for batch in images_tnsr:
+        for tnsr in batch[0]:
+            tnsr_list.append(tnsr)
+
+    for cat in listdir(images)[1:]:
+        for img in listdir(f'{images}/{cat}'):
+            img_list.append(img.removesuffix('.jpg'))
+
+    return dict(zip(img_list, tnsr_list))
