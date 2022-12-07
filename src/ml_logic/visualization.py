@@ -89,3 +89,14 @@ def visualization_anatom_vs_dangerousness():
     sns.countplot(x="anatom_site_general", hue="Melanoma type", hue_order=['Benign', 'Consult', 'Danger'], palette=['#33a02c','#ff7f00', '#e31a1c'], data=data)
     plt.legend(loc="upper right")
     plt.show()
+
+
+def plot_history(history):
+    plt.subplots(1, 1, figsize=(12, 4))
+    plt.plot(history.history['loss'], label='train')
+    plt.plot(history.history['val_loss'], label='val')
+    plt.legend()
+    plt.subplots(1, 1, figsize=(12, 4))
+    plt.plot(history.history['accuracy'], label='train accuracy')
+    plt.plot(history.history['val_accuracy'], label='val accuracy')
+    plt.legend()
