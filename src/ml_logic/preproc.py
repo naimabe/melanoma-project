@@ -5,12 +5,12 @@ import shutil
 from os import listdir
 import albumentations as A
 import cv2 as cv
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 from imblearn.over_sampling import SMOTE
 from keras.utils import image_dataset_from_directory
+from sklearn.model_selection import train_test_split
 
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.impute import SimpleImputer
@@ -262,13 +262,13 @@ def preprocessing_pipeline(ENVPATH, jumpfile=1):
         - img_input : a numpy array of all image tensors
         - tab_input : a numpy array of all tabular data
         - target_input : a numpy array of the target data
-
     '''
 
     #load tabular_data
-    # if ENVPATH == 'SUBSET_DATA_PATH':
-    #     X_tab = create_tab_subset()
-    X_tab = preprocessing_X_tabulaire('METADATA_CSV_PATH')
+    if ENVPATH == 'SUBSET_DATA_PATH':
+        X_tab = create_tab_subset()
+    else:
+        X_tab = preprocessing_X_tabulaire('METADATA_CSV_PATH')
 
     #create image dictionary adapted to the data
     img_dict = create_dict_img(ENVPATH, jumpfile=jumpfile)
@@ -296,7 +296,7 @@ def preprocessing_pipeline(ENVPATH, jumpfile=1):
     tnsr_list = [x / 255 for x in tensor_list]
     img_input = tf.convert_to_tensor(tnsr_list)
 
-    return img_input, tab_input, target_input
+    return list(img_input), list(tab_input), list(target_input)
 
 
 def create_dict_img(ENVPATH,jumpfile=0):
@@ -355,3 +355,76 @@ def create_dict_tnsr(ENVPATH):
             img_list.append(img.removesuffix('.jpg'))
 
     return dict(zip(img_list, tnsr_list))
+
+
+
+def create_subset():
+    '''
+    Fonction qui créé un directory "subset" dans le directory "data",
+    contenant un directory pour chaque target category avec un nombre
+    limité d'images en fonction de la SUBSET_SIZE,
+    qui sera définie par votre variable d'environnement.
+    '''
+    source_path = os.environ.get('IMAGE_DATA_PATH')
+    dir_list = os.listdir(source_path)
+    subset_ = '../subset'
+    subset_path = os.path.join(source_path, subset_)
+    os.mkdir(subset_path)
+    subset_size = int(os.environ.get('SUBSET_SIZE'))
+
+    #iterate over source directories
+    for dir in dir_list:
+        #Create subset directories
+        path = os.path.join(subset_path, dir)
+        os.mkdir(path)
+        for file_name in os.listdir(source_path + '/' + dir)[:subset_size]:
+            #Copy files into new directories
+            shutil.copy(f'{source_path}/{dir}/{file_name}',
+                        f'{subset_path}/{dir}/{file_name}',follow_symlinks=True)
+
+
+def create_tab_subset(jumpfile=1):
+    '''
+    Creates a subset dataframe to match the image_subset
+
+    '''
+    subset_dict = create_dict_img('SUBSET_DATA_PATH',jumpfile=jumpfile)
+    X_tab = preprocessing_X_tabulaire('METADATA_CSV_PATH')
+
+    keys = list(subset_dict.keys())
+    subset_tab = X_tab.loc[keys]
+    return subset_tab
+
+
+
+
+
+def preproc_train_test_split(img, tab, target):
+    '''
+    Train test split of image data, tab data and target data.
+    '''
+    img_train, img_test, target_train, target_test = train_test_split(
+        img,
+        target,
+        test_size=0.25,
+        random_state=1
+    )
+
+    tab_train, tab_test , _ , _ = train_test_split(
+        tab,
+        target,
+        test_size=0.25,
+        random_state=1
+        )
+    elements = [img_train, img_test, target_train, target_test, tab_train, tab_test]
+
+    tensors = [tf.convert_to_tensor(element) for element in elements]
+
+    img_train = tensors[0]
+    img_test = tensors[1]
+    tab_train = tensors[4]
+    tab_test = tensors[5]
+    target_train = tensors[2]
+    target_test = tensors[3]
+
+    return img_train, img_test, tab_train, tab_test, target_train, target_test
