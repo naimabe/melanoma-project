@@ -206,17 +206,6 @@ def images_to_dataset(ENVPATH, validation_split=True):
                                 )
         return dataset
 
-def get_X_y():
-    '''
-    Cette fonction lit les deux tableaux .csv et sort un X_Preprocessed et un y
-    '''
-    y = pd.read_csv(os.environ.get('TARGET_CSV_PATH'))
-    X_preprocessed = preprocessing_X_tabulaire(X)
-    df = X_preprocessed.merge(y, on='image', how='inner')
-    X = df.drop(['target']) # à corriger en fonction de la fonction preprocessing
-    y = df.target # à corriger en fonction de la fonction preprocessing
-    return X, y
-
 
 def preprocessing_X_tabulaire(ENVPATH):
 
