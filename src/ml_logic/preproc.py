@@ -1,30 +1,26 @@
 
 import os
 import shutil
-from pathlib import Path
 
+from os import listdir
 import albumentations as A
 import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-import tensorflow_datasets as tfds
 from imblearn.over_sampling import SMOTE
-from PIL import Image
-from keras.utils import image_dataset_from_directory, to_categorical
+from keras.utils import image_dataset_from_directory
 
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 
-def move_images_tertiaire():
+
+def modify_target_csv():
     '''
-    Moves images from training set into 3 different folders, named according to the target category of each image.
-    Args: None
-    Returns: None
+    Prepares data for the move_images_tertiaire function
     '''
-    #Modify Target CSV according to target categories
     df = pd.read_csv(os.environ.get('TARGET_CSV_PATH'))
     df = df.set_index('image')
     df = df.rename(columns={'MEL' : 'danger', 'BCC' : 'consult', 'DF' : 'benign'})
@@ -32,12 +28,27 @@ def move_images_tertiaire():
     df['danger'] = df['danger'] + df['SCC']
     df['consult'] = df['consult'] + df['AK']
     df = df.drop(columns=['NV', 'AK', 'BKL', 'VASC', 'SCC', 'UNK'], axis=0)
+    return df
+
+def move_images_tertiaire():
+    '''
+    Moves images from training set into 3 different folders, named according to the target category of each image.
+    Args: None
+    Returns: None
+    '''
+    #Create metadata dataframe
+    X_tab = preprocessing_X_tabulaire('METADATA_CSV_PATH')
+
+    #Modify Target CSV according to target categories
+    df = modify_target_csv()
+
     #Prepare source path
     source_path = os.environ.get('ORIGINAL_IMAGE_PATH')
     dir_list = ['danger', 'benign', 'consult']
     # images_ = '../' + 'images'
     image_path = '../data/images'
     os.mkdir(image_path)
+
     #iterate over source directories
     for dir in dir_list:
         #Create subset directories
@@ -45,36 +56,14 @@ def move_images_tertiaire():
         os.mkdir(path)
         #copy files
         for file_name in os.listdir(source_path):
-            if file_name.endswith('.jpg'):
-                if df.loc[file_name.removesuffix('.jpg')][dir] == 1:
-                    #Copy files into new directories
-                    shutil.copy(f'{source_path}/{file_name}',
-                            f'{image_path}/{dir}/{file_name}',follow_symlinks=True)
-
-
-def load_images():
-    '''
-    Loads images from various categorical folders
-    Transforms them into Numpy arrays and then dataframes
-    Adds "image_name" as X feature and origin folder as y feature.
-
-    Args: None
-
-    Returns: Dataframe
-
-    '''
-    classes = {'MEL':0, 'NV':1,
-                'BCC':2, 'AK' : 3,
-                'BKL' : 4, 'DF' : 5,
-                'VASC' : 6, 'SCC' : 7,
-                'UNK' : 8}
-    data_path = os.environ.get('DATA_PATH')
-
-
-    for (cl, i) in classes.items():
-        break
-    pass
-
+            if file_name.removesuffix('.jpg') in X_tab.index:
+                if file_name.endswith('.jpg'):
+                    if df.loc[file_name.removesuffix('.jpg')][dir] == 1:
+                        #Copy files into new directories
+                        shutil.copy(f'{source_path}/{file_name}',
+                                f'{image_path}/{dir}/{file_name}',follow_symlinks=True)
+            else:
+                pass
 
 def augmentation_pipeline(img):
 
@@ -128,35 +117,15 @@ def balance_data(X):
     return X_balanced
 
 
-def image_preprocessing_pipeline():
-    '''
-
-    '''
-
-
-def images_to_dataset(ENVPATH, validation_split=True):
+def images_to_dataset(ENVPATH, validation_split=True, image_size=(64, 64)):
     '''
     Function that sort and transform images into a tensorflow dataset according to their classes
 
     Returns: Tensor (but should return Numpy or Dataframe)
     '''
+
     directory = os.environ.get(f'{ENVPATH}')
     if validation_split:
-        """dataset, dataset_val = image_dataset_from_directory(
-                                    directory,
-                                    labels='inferred',
-                                    label_mode='int',
-                                    class_names=None,
-                                    color_mode='rgb',
-                                    batch_size=32,
-                                    image_size=(64, 64),
-                                    shuffle=True,
-                                    seed=123,
-                                    validation_split=0.3,
-                                    subset='both',
-                                    follow_links=False,
-                                    crop_to_aspect_ratio=False,
-                                )"""
         dataset = image_dataset_from_directory(
                                     directory,
                                     labels='inferred',
@@ -164,10 +133,10 @@ def images_to_dataset(ENVPATH, validation_split=True):
                                     class_names=None,
                                     color_mode='rgb',
                                     batch_size=32,
-                                    image_size=(64, 64),
+                                    image_size=image_size,
                                     shuffle=True,
                                     seed=123,
-                                    validation_split=0.3,
+                                    validation_split=0.25,
                                     subset='training',
                                     follow_links=False,
                                     crop_to_aspect_ratio=False,
@@ -179,10 +148,10 @@ def images_to_dataset(ENVPATH, validation_split=True):
                                     class_names=None,
                                     color_mode='rgb',
                                     batch_size=32,
-                                    image_size=(64, 64),
+                                    image_size=image_size,
                                     shuffle=True,
                                     seed=123,
-                                    validation_split=0.3,
+                                    validation_split=0.25,
                                     subset='validation',
                                     follow_links=False,
                                     crop_to_aspect_ratio=False,
@@ -196,7 +165,7 @@ def images_to_dataset(ENVPATH, validation_split=True):
                                     class_names=None,
                                     color_mode='rgb',
                                     batch_size=32,
-                                    image_size=(64, 64),
+                                    image_size=image_size,
                                     shuffle=False,
                                     seed=None,
                                     validation_split=None,
@@ -205,6 +174,7 @@ def images_to_dataset(ENVPATH, validation_split=True):
                                     crop_to_aspect_ratio=False,
                                 )
         return dataset
+
 
 
 def preprocessing_X_tabulaire(ENVPATH):
@@ -218,8 +188,7 @@ def preprocessing_X_tabulaire(ENVPATH):
     """
 
     #load data
-    df = pd.read_csv(os.environ.get(f'{ENVPATH}'))
-    df = pd.read_csv('../data/ISIC_2019_Training_Metadata.csv')
+    df = pd.read_csv(os.environ.get(ENVPATH))
 
     #drop NaN and colummn 'lesion'
 
@@ -281,4 +250,108 @@ def get_X_y():
     return X, y
 
 
-#def create_small_test_dataset(sample_size):
+def preprocessing_pipeline(ENVPATH, jumpfile=1):
+    '''
+    One function that loads tabular metadata, target information and images, turns all three into tensors and lines them up, thus preparing them for the concatenated model to receive as training data.
+
+    ARGS:
+        - ENVPATH: environment variable path leading to the image data
+        - jumpfile: if the function returns an error it is likely that there is a hidden file in the image directory, jumpfile=1 will skip that file. If there is no hidden file, then set jumpfile=0 so as to avoid it missing some of your data.
+
+    Returns:
+        - img_input : a numpy array of all image tensors
+        - tab_input : a numpy array of all tabular data
+        - target_input : a numpy array of the target data
+
+    '''
+
+    #load tabular_data
+    # if ENVPATH == 'SUBSET_DATA_PATH':
+    #     X_tab = create_tab_subset()
+    X_tab = preprocessing_X_tabulaire('METADATA_CSV_PATH')
+
+    #create image dictionary adapted to the data
+    img_dict = create_dict_img(ENVPATH, jumpfile=jumpfile)
+
+    #Create tensor dictionnary
+    tnsr_dict = create_dict_tnsr(ENVPATH)
+
+    #Create Target dictionary
+    target_dict = {'benign' : 0.0,
+                    'consult' : 1.0,
+                    'danger' : 2.0}
+
+    #add tensor and target columns to tabular data to keep all data sorted
+    X_tab['img_tnsr'] = X_tab.index.map(tnsr_dict)
+    X_tab['target'] = X_tab.index.map(img_dict)
+
+    #Tabular data as tensor
+    tab_input = tf.convert_to_tensor(X_tab.drop(columns=['img_tnsr', 'target']))
+
+    #target data as tensor
+    target_input = tf.convert_to_tensor(X_tab.target.map(target_dict))
+
+    #Image data as tensor
+    tensor_list = X_tab.img_tnsr.tolist()
+    tnsr_list = [x / 255 for x in tensor_list]
+    img_input = tf.convert_to_tensor(tnsr_list)
+
+    return img_input, tab_input, target_input
+
+
+def create_dict_img(ENVPATH,jumpfile=0):
+    '''
+    creates two dictionnaries :
+
+    dict_img
+        keys = image IDs
+        values = category
+
+    dict_tnsr
+        keys = image IDs
+        values = tensor
+
+    ARGS: 'ENVPATH' : Environment variable leading to images folder path
+
+    returns: dict
+    '''
+    #instantiate lists and get basic path to images folder
+    images = os.environ.get(ENVPATH)
+    dict_img = {}
+    img_list = []
+
+    #loop over folders
+    for cat in listdir(images)[jumpfile:]:
+        #loop over files
+        for img in listdir(f'{images}/{cat}'):
+            img_list.append(img)
+            dict_img[img.removesuffix('.jpg')] = cat #create dict and remove ".jpg"
+
+    return dict_img
+
+
+def create_dict_tnsr(ENVPATH):
+    '''
+    create dictionnary:
+    keys = image IDs
+    values = tensor
+
+    ARGS: 'ENVPATH' : Environment variable leading to images folder path
+
+    returns: dict
+    '''
+    images_tnsr = list(images_to_dataset(ENVPATH,
+                                    validation_split=False)\
+                                        .as_numpy_iterator())
+    images = os.environ.get(ENVPATH)
+    tnsr_list = []
+    img_list = []
+    for batch in images_tnsr:
+        for tnsr in batch[0]:
+            tnsr_list.append(tnsr)
+
+    for cat in listdir(images)[1:]:
+        for img in listdir(f'{images}/{cat}'):
+            img_list.append(img.removesuffix('.jpg'))
+
+    return dict(zip(img_list, tnsr_list))

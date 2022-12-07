@@ -1,5 +1,13 @@
 import os
 import shutil
+from src.ml_logic.utils import create_dict_img
+from src.ml_logic.preproc import preprocessing_X_tabulaire
+
+import os
+import shutil
+
+from src.ml_logic.utils import create_dict_img
+
 
 
 def create_subset():
@@ -10,7 +18,7 @@ def create_subset():
     qui sera définie par votre variable d'environnement.
     '''
     source_path = os.environ.get('IMAGE_DATA_PATH')
-    dir_list = os.listdir(source_path)[1:]
+    dir_list = os.listdir(source_path)
     subset_ = '../subset'
     subset_path = os.path.join(source_path, subset_)
     os.mkdir(subset_path)
@@ -25,3 +33,17 @@ def create_subset():
             #Copy files into new directories
             shutil.copy(f'{source_path}/{dir}/{file_name}',
                         f'{subset_path}/{dir}/{file_name}',follow_symlinks=True)
+
+
+
+def create_tab_subset(jumpfile=1):
+    '''
+    Creates a subset dataframe to match the image_subset
+
+    '''
+    subset_dict = create_dict_img('SUBSET_DATA_PATH',jumpfile=jumpfile)
+    X_tab = preprocessing_X_tabulaire('METADATA_CSV_PATH')
+
+    keys = list(subset_dict.keys())
+    subset_tab = X_tab.loc[keys]
+    return subset_tab
