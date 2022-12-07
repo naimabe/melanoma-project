@@ -11,6 +11,9 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.applications.efficientnet import preprocess_input
 import pickle
 from src.ml_logic.registry import load_model
+from tensorflow.keras.utils import img_to_array
+from tensorflow import expand_dims
+
 
 SIDEBAR = st.sidebar.image("/home/naimabechari/code/naimabe/melanoma-project/data/lewagonimage.png", use_column_width=True)
 st.sidebar.write("Batch #1061 - Data Science")
@@ -18,9 +21,8 @@ st.sidebar.write("## Who are we?")
 st.sidebar.write("George, Dejan and Naïma")
 st.sidebar.write("The Goal of our project is to predict whether a skin lesion is benign or malignant.")
 
-
-st.markdown("""# PREDICTION OF MELANOMAS
-## Is my Skin lesion a benign or malignant lesion?""")
+st.markdown("<h1 style='text-align:center; color:black;'>PREDICTION OF MELANOMAS</h1", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align:center; color:black;'>Is my Skin lesion a benign or malignant lesion?</h2", unsafe_allow_html=True)
 
 uploaded_image = st.file_uploader(label = "You can drop your skin image here:", type=["jpg", "png"])
 st.set_option('deprecation.showfileUploaderEncoding', False)
@@ -30,34 +32,32 @@ st.set_option('deprecation.showfileUploaderEncoding', False)
 
 if uploaded_image is not None:
     image = Image.open(uploaded_image)
-    st.success("You did it !")
+    st.success("Your image is downloaded !")
 
-    #st.write(f"Original size : {image.size}") # 5464x3640
-    st.image(image, use_column_width=True, caption='Your Picture')
+    st.image(image, width=400, use_column_width=False, caption='Your Picture')
     st.write("")
-    st.write("Classifying...")
+    #st.write("Classifying...")
+    #image.save('test_image.jpeg')
     image_resized = image.resize((64,64))
-    image_resized = preprocess_input(image)
-    image_resized = np.asarray(image_resized)
-    loaded_model = load_model()
+    #image_resized = preprocess_input(image)
+    array = img_to_array(image_resized)
+    array = expand_dims(array, axis=0, name=None)
 
-    #st.write(f"Resize: {image_resized.size}")
-    #image_resized.save('resized_image.jpeg')
-    #prediction = loaded_model.predict(image_resized)
+    if st.button("Predict"):
+        """Model is loading..."""
+        loaded_model = load_model()
 
-    #image_class = str(prediction[0][0][1])
-    #score=np.round(prediction[0][0][2])
-    #st.write("The image is classified as",image_class)
-    #st.write("The similarity score is approximately",score)
-    #print("The image is classified as ",image_class, "with a similarity score of",score)
-
-
-    #label = teachable_machine_classification(image, 'brain_tumor_classification.h5')
-    #if label == 0:
-    #    st.write("The MRI scan has a brain tumor")
-    #else:
-    #    st.write("The MRI scan is healthy")
-
- # print out the top 3 prediction labels with scores
-    #for i in labels:
-    #    st.write("Prediction (index, name)", i[0], ",   Score: ", i[1])
+        """Prediction of the image..."""
+        prediction = loaded_model.predict(array)
+        """Results: """
+        st.write("Benign lesion:", round(prediction[0][0]*100, 2), "%", color='green')
+        st.write("You need to consult:", round(prediction[0][1]*100, 2), "%" )
+        st.write("Malignant lesion:", round(prediction[0][2]*100, 2), "%", color='red')
+        if prediction.max() == prediction[0][0]:
+            st.success("You don't need to worry")
+        elif prediction.max() == prediction [0][1]:
+            st.error("You need to see your doctor to be sure")
+        else:
+            st.error("Your lesion is dangerous")
+    else:
+        pass
