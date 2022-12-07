@@ -141,4 +141,4 @@ test image resizing.ipynb
 *ipynb
 .env
 *.ipynb
-
+*.jpeg

@@ -18,7 +18,7 @@ def create_subset():
     qui sera définie par votre variable d'environnement.
     '''
     source_path = os.environ.get('IMAGE_DATA_PATH')
-    dir_list = os.listdir(source_path)[1:]
+    dir_list = os.listdir(source_path)
     subset_ = '../subset'
     subset_path = os.path.join(source_path, subset_)
     os.mkdir(subset_path)
