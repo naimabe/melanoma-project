@@ -119,7 +119,7 @@ def balance_data(X):
     return X_balanced
 
 
-def images_to_dataset(ENVPATH, validation_split=True):
+def images_to_dataset(ENVPATH, validation_split=True, image_size=(64, 64)):
     '''
     Function that sort and transform images into a tensorflow dataset according to their classes
 
@@ -136,10 +136,10 @@ def images_to_dataset(ENVPATH, validation_split=True):
                                     class_names=None,
                                     color_mode='rgb',
                                     batch_size=32,
-                                    image_size=(64, 64),
+                                    image_size=image_size,
                                     shuffle=True,
                                     seed=123,
-                                    validation_split=0.3,
+                                    validation_split=0.25,
                                     subset='training',
                                     follow_links=False,
                                     crop_to_aspect_ratio=False,
@@ -151,10 +151,10 @@ def images_to_dataset(ENVPATH, validation_split=True):
                                     class_names=None,
                                     color_mode='rgb',
                                     batch_size=32,
-                                    image_size=(64, 64),
+                                    image_size=image_size,
                                     shuffle=True,
                                     seed=123,
-                                    validation_split=0.3,
+                                    validation_split=0.25,
                                     subset='validation',
                                     follow_links=False,
                                     crop_to_aspect_ratio=False,
@@ -168,7 +168,7 @@ def images_to_dataset(ENVPATH, validation_split=True):
                                     class_names=None,
                                     color_mode='rgb',
                                     batch_size=32,
-                                    image_size=(64, 64),
+                                    image_size=image_size,
                                     shuffle=False,
                                     seed=None,
                                     validation_split=None,

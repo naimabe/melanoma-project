@@ -2,13 +2,13 @@ import os
 from keras import Model, models
 
 
-def save_model(model: Model = None) -> None:
+def save_model(model: Model = None, path='models') -> None:
     """
     persist trained model, params and metrics
     """
     # save model
     if model is not None:
-        model_path = os.path.join(os.environ.get('LOCAL_REGISTRY_PATH'), "models")
+        model_path = os.path.join(os.environ.get('LOCAL_REGISTRY_PATH'), path)
         print(f"- model path: {model_path}")
         model.save(model_path)
 
@@ -17,12 +17,12 @@ def save_model(model: Model = None) -> None:
     return None
 
 
-def load_model(save_copy_locally=False) -> Model:
+def load_model(save_copy_locally=False, path='models') -> Model:
     """
     load the latest saved model, return None if no model found
     """
 
-    model_path = os.path.join(os.environ.get('LOCAL_REGISTRY_PATH'), "models")
+    model_path = os.path.join(os.environ.get('LOCAL_REGISTRY_PATH'), path)
 
     model = models.load_model(model_path)
     print("\n✅ model loaded from disk")

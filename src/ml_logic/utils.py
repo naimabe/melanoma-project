@@ -2,7 +2,7 @@ import os
 from os import listdir
 from src.ml_logic.preproc import images_to_dataset
 
-def create_dict_img(ENVPATH):
+def create_dict_img(ENVPATH,jumpfile=0):
     '''
     creates two dictionnaries :
 
@@ -24,7 +24,7 @@ def create_dict_img(ENVPATH):
     img_list = []
 
     #loop over folders
-    for cat in listdir(images)[1:]:
+    for cat in listdir(images)[jumpfile:]:
         #loop over files
         for img in listdir(f'{images}/{cat}'):
             img_list.append(img)
@@ -75,5 +75,3 @@ def target_cat():
                 'BKL' : 'benign', 'DF' : 'benign',
                 'VASC' : 'benign', 'SCC' : 'danger'}
     return classes
-
-

@@ -30,20 +30,14 @@ def create_subset():
 
 
 
-def create_tab_subset():
+def create_tab_subset(jumpfile=1):
     '''
     Creates a subset dataframe to match the image_subset
 
     '''
-    subset_dict = create_dict_img('IMAGE_DATA_PATH')
+    subset_dict = create_dict_img('SUBSET_DATA_PATH',jumpfile=jumpfile)
     X_tab = preprocessing_X_tabulaire('METADATA_CSV_PATH')
 
-    for x in subset_dict.keys():
-        if x in X_tab.index:
-            X_tab_subset = X_tab.loc[x]
-        else:
-            X_tab.drop(labels=x, axis='index')
-
-
-    #X_tab_subset = X_tab.drop(labels=)
-    X_tab_subset
+    keys = list(subset_dict.keys())
+    subset_tab = X_tab.loc[keys]
+    return subset_tab
