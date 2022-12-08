@@ -1,5 +1,6 @@
 import tensorflow as tf
 import keras
+import albumentations as A
 
 from keras import layers
 from keras.applications import EfficientNetB0
@@ -99,12 +100,12 @@ def model_concat():
 
     outeff = eff_model(preprocess_input(input_img))
     flattening_layer = layers.Flatten()(outeff)
-    dense_layer_01 = layers.Dense(32, activation='relu')(flattening_layer)
-    dropout_01 = layers.Dropout(0.6)(dense_layer_01)
+    dense_layer_01 = layers.Dense(200, activation='relu')(flattening_layer)
+    dropout_01 = layers.Dropout(0.7)(dense_layer_01)
 
     # Second model
     dense_02 = layers.Dense(200, activation='relu')(input_tab)
-    dropout_02 = layers.Dropout(0.6)(dense_02)
+    dropout_02 = layers.Dropout(0.8)(dense_02)
 
     # Concatenate outputs
     concat_outputs = concatenate([dropout_01, dropout_02])
@@ -115,7 +116,7 @@ def model_concat():
     model = Model(inputs=[input_img, input_tab], outputs=[prediction_layer])
 
     model.compile(loss='sparse_categorical_crossentropy',
-                            optimizer=keras.optimizers.Adam(learning_rate=0.001),
+                            optimizer=keras.optimizers.Adam(learning_rate=0.01),
                             metrics=['accuracy'])
     return model
 
@@ -170,16 +171,16 @@ def model_concat_02():
     eff_model.trainable = True
     outeff = eff_model(preprocess_input(input_img))
     flattening_layer = layers.Flatten()(outeff)
-    dense_layer_01 = layers.Dense(80, activation='relu')(flattening_layer)
-    dropout_01 = layers.Dropout(0.7)(dense_layer_01)
-    dense_layer_02 = layers.Dense(32, activation='relu')(dropout_01)
+    dense_layer_01 = layers.Dense(128, activation='relu')(flattening_layer)
+    dropout_01 = layers.Dropout(0.8)(dense_layer_01)
+    dense_layer_02 = layers.Dense(64, activation='relu')(dropout_01)
     dropout_02 = layers.Dropout(0.7)(dense_layer_02)
 
     # Second model
-    dense_tab_02 = layers.Dense(80, activation='relu')(input_tab)
-    dropout_tab_02 = layers.Dropout(0.6)(dense_tab_02)
+    dense_tab_02 = layers.Dense(64, activation='relu')(input_tab)
+    dropout_tab_02 = layers.Dropout(0.7)(dense_tab_02)
     dense_tab_03 = layers.Dense(32, activation='relu')(dropout_tab_02)
-    dropout_tab_03 = layers.Dropout(0.6)(dense_tab_03)
+    dropout_tab_03 = layers.Dropout(0.7)(dense_tab_03)
 
     # Concatenate outputs
     concat_outputs = concatenate([dropout_02, dropout_tab_03])
@@ -190,6 +191,96 @@ def model_concat_02():
     model = Model(inputs=[input_img, input_tab], outputs=[prediction_layer])
 
     model.compile(loss='sparse_categorical_crossentropy',
-                            optimizer=keras.optimizers.Adam(learning_rate=0.0001),
+                            optimizer=keras.optimizers.Adam(learning_rate=0.001),
                             metrics=['accuracy'])
+    return model
+
+def load_Model_simple_2(input_shape=(64, 64, 3)):
+
+    def load_efficientnet(input_shape=input_shape):
+        '''
+        load pre-trained model
+        Args: None
+        return: pre-trained model
+        '''
+
+        input_img = keras.Input(shape=input_shape)
+        random_cont = layers.RandomContrast(factor=0.5)(input_img)
+        random_crop = layers.RandomCrop(height=0.6, width=0.6)(random_cont)
+
+        model = EfficientNetB0(include_top=False,
+                            weights='imagenet',
+                            input_shape=input_shape)
+        input_img(random_crop)
+        model(preprocess_input(input_img))
+        return model
+
+    def set_nontrainable_layers(model):
+        '''
+        Ensures pre-trained model is not trainable on new data.
+        Args: None
+        return: pre-trained model
+        '''
+        model.trainable = True
+        return model
+
+    def add_last_layers():
+        '''
+        Adds final layers to the pre-trained model.
+        Args: None
+        return: pre-trained model with final layers
+        '''
+        base_model = load_efficientnet()
+        base_model = set_nontrainable_layers(base_model)
+        flattening_layer = layers.Flatten()
+        dense_layer_01 = layers.Dense(128, activation='relu')
+        dropout_01 = layers.Dropout(0.8)
+        dense_layer_02 = layers.Dense(32, activation='relu')
+        dropout_02 = layers.Dropout(0.6)
+        prediction_layer = layers.Dense(3, activation='softmax')
+
+        model = Sequential([base_model,
+                            flattening_layer,
+                            dense_layer_01,
+                            dropout_01,
+                            dense_layer_02,
+                            dropout_02,
+                            prediction_layer])
+
+        # model.add_metric('recall', recall_score())
+
+        model.compile(loss='sparse_categorical_crossentropy',
+                        optimizer= keras.optimizers.Adam(learning_rate=0.001),
+                        metrics=['accuracy'])
+
+        return model
+
+    model = add_last_layers()
+    return model
+
+
+def model_custom_cnn(input_shape):
+    '''
+    Custom CNN Model
+    '''
+    model = Sequential([
+    layers.Input(shape=(64, 64)),
+    layers.RandomFlip("horizontal_and_vertical"),
+    layers.RandomRotation(0.2),
+    layers.Conv2D(128, 3, activation='relu'),
+    layers.MaxPooling2D(),
+    layers.Conv2D(64, 3, activation='relu'),
+    layers.MaxPooling2D(),
+    layers.Conv2D(32, 3, activation='relu'),
+    layers.MaxPooling2D(),
+    layers.Flatten(),
+    layers.Dropout(0.5),
+    layers.Dense(128, activation='relu'),
+    layers.Dropout(0.6),
+    layers.Dense(3, activation='softmax')
+    ])
+
+    model.compile(optimizer='adam',
+                loss= 'sparse_categorical_crossentropy',
+                metrics=['accuracy'])
     return model
