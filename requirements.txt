@@ -4,26 +4,17 @@ seaborn
 matplotlib
 seaborn
 setuptools
-requests
 
-scikit-learn
+bre
+
+
 pathlib
-albumentations
-keras
-sklearn
-imblearn.over_sampling
-shutil
 
-ipykernel
-pytest
+
 imblearn
-#os
-tensorflow_datasets
+Pillow
 
-# Trick to install the version of Tensorflow depending on your processor: darwin == Mac, ARM == M1
-tensorflow-macos==2.9.1; sys_platform == 'darwin' and 'ARM' in platform_version # Mac M-chips
-tensorflow==2.9.1; sys_platform == 'darwin' and 'ARM' not in platform_version # Mac Intel chips
-tensorflow==2.9.1; sys_platform != 'darwin' # Windows & Ubuntu Intel chips
+tensorflow==2.10.0
 
 
-mlflow~=1.26.1
+streamlit

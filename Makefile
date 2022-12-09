@@ -23,3 +23,7 @@ venv/bin/activate: requirements.txt
 
 run: venv/bin/activate
 	./venv/bin/python3 app.py
+
+
+run_api:
+	uvicorn src.api.fast:app --reload
