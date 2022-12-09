@@ -6,10 +6,14 @@ scikit-learn
 pathlib
 albumentations
 
+fastapi
+uvicorn
+pytz
+
 ipykernel
 pytest
 imblearn
-os
+#os
 tensorflow_datasets
 
 # Trick to install the version of Tensorflow depending on your processor: darwin == Mac, ARM == M1
@@ -19,3 +23,7 @@ tensorflow==2.9.1; sys_platform != 'darwin' # Windows & Ubuntu Intel chips
 
 
 mlflow~=1.26.1
+
+fastapi
+uvicorn
+pytz

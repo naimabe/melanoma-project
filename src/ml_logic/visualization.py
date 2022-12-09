@@ -22,6 +22,7 @@ def dataset_creation_categories():
     target_dataset = target_dataset.value_counts()
     target_dataset = target_dataset.reset_index()
     target_dataset.columns = ['Melanoma type', 'count']
+    target_dataset['dangerousness'] = ['Benign', 'Malignant', 'Potentially dangerous', 'Benign', 'Potentially dangerous', 'Malignant', 'Benign', 'Benign']
     return target_dataset
 
 def visualization_barplot_target():
@@ -31,9 +32,16 @@ def visualization_barplot_target():
     plt.figure(figsize=(15,8))
     data = dataset_creation_categories()
     # plot the distribution of the skin lesion
-    barplot = sns.barplot(data=data, x='Melanoma type', y='count').set(title='Distribution of Melanoma types')
+    ax = sns.barplot(data=data, x='Melanoma type', y='count', hue='dangerousness', dodge=False, palette=['#33a02c','#e31a1c', '#ff7f00'])
     #barplot.set_xticklabels(barplot.get_xticklabels(), rotation = 45, size=10, horizontalalignment='right');
-    return barplot
+    total = float(sum(data['count']))
+    plt.title('Distribution of Melanoma types', fontsize=20)
+    for p in ax.patches:
+        percentage = '{:.1f}%'.format(100 * p.get_height()/total)
+        x = p.get_x() +0.45
+        y = p.get_height() +60
+        ax.annotate(percentage, (x, y), ha='center')
+    plt.show()
 
 def visualization_pie_target():
     '''
@@ -67,7 +75,7 @@ def dataset_creation_dangerousness():
     '''
     Function that creates a dataset with the dangerousness of the target(dangerous, potentially dangerous or benign)
     '''
-    df = pd.read_csv(os.environ.get'METADATA_PATH')
+    df = pd.read_csv(os.environ.get('METADATA_PATH'))
     target = pd.read_csv('../data/ISIC_2019_Training_GroundTruth.csv')
     target_dataset = target.set_index('image')
     target_dataset = target_dataset.idxmax(axis='columns')
@@ -83,8 +91,15 @@ def visualization_dangerousness():
     Function that plots the count of each category of melanoma according to their dangerousness
     '''
     data = dataset_creation_dangerousness()
-    sns.countplot(data=data, x=data['Melanoma type'], order=['Benign', 'Consult', 'Danger'], palette=['#33a02c','#ff7f00', '#e31a1c']).set(title='Distribution of Benign, Dangerous and Potentially Dangerous Skin Lesion')
-
+    ax = sns.countplot(data=data, x=data['Melanoma type'], order=['Benign', 'Consult', 'Danger'], palette=['#33a02c','#ff7f00', '#e31a1c'])
+    total = float(len(data))
+    plt.title('Distribution of Benign, Dangerous and Potentially Dangerous Skin Lesion', fontsize=10)
+    for p in ax.patches:
+        percentage = '{:.1f}%'.format(100 * p.get_height()/total)
+        x = p.get_x() +0.45
+        y = p.get_height() +60
+        ax.annotate(percentage, (x, y), ha='center')
+    plt.show()
 
 def visualization_ages_vs_dangerousness():
     '''
@@ -93,6 +108,7 @@ def visualization_ages_vs_dangerousness():
     data = dataset_creation_dangerousness()
     plt.figure(figsize=(10,6))
     sns.histplot(x="age_approx", hue="Melanoma type", hue_order=['Benign', 'Consult', 'Danger'], palette=['#33a02c','#ff7f00', '#e31a1c'], data=data, kde=True, multiple="stack")
+    plt.title('Distribution of Melanoma type depending on the age of the patients', fontsize=10)
     plt.show()
 
 def visualization_anatom_vs_dangerousness():
@@ -103,6 +119,7 @@ def visualization_anatom_vs_dangerousness():
     plt.figure(figsize=(14,6))
     sns.countplot(x="anatom_site_general", hue="Melanoma type", hue_order=['Benign', 'Consult', 'Danger'], palette=['#33a02c','#ff7f00', '#e31a1c'], data=data)
     plt.legend(loc="upper right")
+    plt.title('Distribution of Melanoma type according to their location', fontsize=10)
     plt.show()
 
 

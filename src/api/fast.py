@@ -18,7 +18,7 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
-app.state.model = load_model()
+#app.state.model = load_model()
 
 @app.get("/")
 def root():
@@ -27,6 +27,7 @@ def root():
 
 @app.get("/predict")
 def predict(image):
-    model = load_model(path='BEST_MODEL_PATH')
-    images_to_dataset(image, validation_split=False)
-    
+    return {'hello'}
+    #model = load_model(path='BEST_MODEL_PATH')
+    #images_to_dataset(image, validation_split=False)
+    #return model.predict()
