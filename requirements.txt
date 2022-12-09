@@ -17,7 +17,7 @@ shutil
 ipykernel
 pytest
 imblearn
-os
+#os
 tensorflow_datasets
 
 # Trick to install the version of Tensorflow depending on your processor: darwin == Mac, ARM == M1

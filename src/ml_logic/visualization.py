@@ -68,7 +68,9 @@ def dataset_creation_dangerousness():
     '''
     Function that creates a dataset with the dangerousness of the target(dangerous, potentially dangerous or benign)
     '''
+
     df = pd.read_csv(os.environ.get('METADATA_PATH'))
+
     target = pd.read_csv('../data/ISIC_2019_Training_GroundTruth.csv')
     target_dataset = target.set_index('image')
     target_dataset = target_dataset.idxmax(axis='columns')
