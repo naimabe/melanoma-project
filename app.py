@@ -6,7 +6,7 @@ from tensorflow.keras.applications.efficientnet import preprocess_input
 from src.ml_logic.registry import load_model
 from tensorflow.keras.utils import img_to_array
 from tensorflow import expand_dims
-
+from tensorflow.keras import models
 #SIDEBAR
 # SIDEBAR = st.sidebar.image("/home/naimabechari/code/naimabe/melanoma-project/data/lewagonimage.png", use_column_width=True)
 st.sidebar.write("Batch #1061 - Data Science")
@@ -28,9 +28,12 @@ option_anatom = st.selectbox(
     'Where is located your lesion?',
     ('anterior torso', 'upper extremity', 'posterior torso', 'head/neck', 'lower extremity', 'palms/soles', 'oral/genital', 'lateral torso'))
 
-st.write('You are a', option_age, 'years old', option_sex, '.')
+st.write('You are a', option_age, 'years old', option_sex,'','.')
 st.write('Your lesion is located in the', option_anatom, 'area.')
+@st.cache
 
+def mode():
+    return models.load_model('../../saved_model/training_outputs/model_simple')
 
 #Uploading of the image
 uploaded_image = st.file_uploader(label = "You can now drop your skin image here:", type=["jpg", "png"])
@@ -54,10 +57,9 @@ if uploaded_image is not None:
     array = expand_dims(array, axis=0, name=None)
 
     if st.button("Predict"):
-        """Model is loading..."""
-        #loaded_model = load_model(path='model_simple')
-        loaded_model = load_model()
-        """Prediction of the image..."""
+        loaded_model = mode()
+        """The Model is loaded!"""
+        """Your image is analyzed..."""
         prediction = loaded_model.predict(array)
         """Results:"""
         st.write("Benign lesion:", round(prediction[0][0]*100, 2), "%")
@@ -69,5 +71,6 @@ if uploaded_image is not None:
             st.error("You need to see your doctor to be sure")
         else:
             st.error("Your lesion is dangerous")
-    else:
-        pass
+
+else:
+    pass

@@ -11,6 +11,10 @@ bre
 pathlib
 
 
+fastapi
+uvicorn
+pytz
+
 imblearn
 Pillow
 
