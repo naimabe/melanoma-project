@@ -18,7 +18,7 @@ def save_model(model: Model = None, path='models') -> None:
     return None
 
 
-def load_model(save_copy_locally=False, path='models') -> Model:
+def load_model(save_copy_locally=False) -> Model:
     """
     load the latest saved model, return None if no model found
     """
