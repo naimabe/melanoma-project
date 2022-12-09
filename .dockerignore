@@ -8,3 +8,5 @@ data/
 bin
 bin/
 notebooks/
+.git
+
