@@ -3,7 +3,7 @@ import keras
 import albumentations as A
 
 from keras import layers
-from keras.applications import EfficientNetB0
+from keras.applications import EfficientNetB0, VGG16
 from keras.models import  Sequential, Functional, Model
 from keras.layers import concatenate
 from src.ml_logic.preproc import images_to_dataset
@@ -42,10 +42,10 @@ def load_Model_simple(input_shape=(64, 64, 3)):
         base_model = load_efficientnet()
         base_model = set_nontrainable_layers(base_model)
         flattening_layer = layers.Flatten()
-        dense_layer_01 = layers.Dense(120, activation='relu')
-        dropout_01 = layers.Dropout(0.8)
-        dense_layer_02 = layers.Dense(32, activation='relu')
-        dropout_02 = layers.Dropout(0.6)
+        dense_layer_01 = layers.Dense(128, activation='relu')
+        dropout_01 = layers.Dropout(0.75)
+        dense_layer_02 = layers.Dense(64, activation='relu')
+        dropout_02 = layers.Dropout(0.75)
         prediction_layer = layers.Dense(3, activation='softmax')
 
         model = Sequential([base_model,
@@ -259,15 +259,15 @@ def load_Model_simple_2(input_shape=(64, 64, 3)):
     return model
 
 
-def model_custom_cnn(input_shape):
+def model_custom_cnn():
     '''
     Custom CNN Model
     '''
     model = Sequential([
-    layers.Input(shape=(64, 64)),
+    preprocess_input(layers.Input(shape=(64, 64, 3))),
     layers.RandomFlip("horizontal_and_vertical"),
     layers.RandomRotation(0.2),
-    layers.Conv2D(128, 3, activation='relu'),
+    layers.Conv2D(128, 3, activation='relu', input_dim=(64, 64)),
     layers.MaxPooling2D(),
     layers.Conv2D(64, 3, activation='relu'),
     layers.MaxPooling2D(),
@@ -283,4 +283,61 @@ def model_custom_cnn(input_shape):
     model.compile(optimizer='adam',
                 loss= 'sparse_categorical_crossentropy',
                 metrics=['accuracy'])
+    return model
+
+
+
+
+def load_Model_VGG(input_shape=(64, 64, 3)):
+
+    def load_VGG(input_shape=input_shape):
+        '''
+        load pre-trained model
+        Args: None
+        return: pre-trained model
+        '''
+        input_img = keras.Input(shape=input_shape)
+        model = VGG16(include_top=False,
+                            weights='imagenet',
+                            input_shape=input_shape)
+        model(input_img)
+        return model
+
+    def set_nontrainable_layers(model):
+        '''
+        Ensures pre-trained model is not trainable on new data.
+        Args: None
+        return: pre-trained model
+        '''
+        model.trainable = True
+        return model
+
+    def add_last_layers():
+        '''
+        Adds final layers to the pre-trained model.
+        Args: None
+        return: pre-trained model with final layers
+        '''
+        base_model = load_VGG()
+        base_model = set_nontrainable_layers(base_model)
+        flattening_layer = layers.Flatten()
+        dense_layer_01 = layers.Dense(96, activation='relu')
+        dropout_01 = layers.Dropout(0.6)
+        prediction_layer = layers.Dense(3, activation='softmax')
+
+        model = Sequential([base_model,
+                            flattening_layer,
+                            dense_layer_01,
+                            dropout_01,
+                            prediction_layer])
+
+        # model.add_metric('recall', recall_score())
+
+        model.compile(loss='sparse_categorical_crossentropy',
+                        optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
+                        metrics=['accuracy'])
+
+        return model
+
+    model = add_last_layers()
     return model

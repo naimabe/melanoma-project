@@ -28,5 +28,3 @@ def root():
 @app.get("/predict")
 def predict(image):
     model = load_model(path='BEST_MODEL_PATH')
-    images_to_dataset(image, validation_split=False)
-    

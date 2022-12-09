@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from src.ml_logic.preproc import images_to_dataset
-
+import os
+from sklearn.metrics import confusion_matrix
 
 def description_target():
     '''
@@ -12,7 +13,10 @@ def description_target():
     return target_dataset.describe()
 
 def dataset_creation_categories():
-    target_dataset = pd.read_csv('../data/ISIC_2019_Training_GroundTruth.csv')
+    '''
+    Function that creates a dataset with the number of each category of melanoma
+    '''
+    target_dataset = pd.read_csv(os.environ.get('GROUNDTRUTH_PATH'))
     target_dataset = target_dataset.set_index('image')
     target_dataset.columns = ['Melanoma', 'Melanocytic nevus', 'Basal cell carcinoma', 'Actinic keratosis', 'Benign keratosis', 'Dermatofibroma', 'Vascular lesion', 'Squamous cell carcinoma', 'None']
     target_dataset = target_dataset.idxmax(axis='columns')
@@ -61,7 +65,10 @@ def visualization_images():
 
 
 def dataset_creation_dangerousness():
-    df = pd.read_csv('../data/ISIC_2019_Training_Metadata.csv')
+    '''
+    Function that creates a dataset with the dangerousness of the target(dangerous, potentially dangerous or benign)
+    '''
+    df = pd.read_csv(os.environ.get('METADATA_PATH'))
     target = pd.read_csv('../data/ISIC_2019_Training_GroundTruth.csv')
     target_dataset = target.set_index('image')
     target_dataset = target_dataset.idxmax(axis='columns')
@@ -73,17 +80,26 @@ def dataset_creation_dangerousness():
     return data
 
 def visualization_dangerousness():
+    '''
+    Function that plots the count of each category of melanoma according to their dangerousness
+    '''
     data = dataset_creation_dangerousness()
     sns.countplot(data=data, x=data['Melanoma type'], order=['Benign', 'Consult', 'Danger'], palette=['#33a02c','#ff7f00', '#e31a1c']).set(title='Distribution of Benign, Dangerous and Potentially Dangerous Skin Lesion')
 
 
 def visualization_ages_vs_dangerousness():
+    '''
+    Function that plots the count of melanoma according to the age and the dangerousness
+    '''
     data = dataset_creation_dangerousness()
     plt.figure(figsize=(10,6))
     sns.histplot(x="age_approx", hue="Melanoma type", hue_order=['Benign', 'Consult', 'Danger'], palette=['#33a02c','#ff7f00', '#e31a1c'], data=data, kde=True, multiple="stack")
     plt.show()
 
 def visualization_anatom_vs_dangerousness():
+    '''
+    Function that plots the count of melanoma according to the anatomic site and the dangerousness
+    '''
     data = dataset_creation_dangerousness()
     plt.figure(figsize=(14,6))
     sns.countplot(x="anatom_site_general", hue="Melanoma type", hue_order=['Benign', 'Consult', 'Danger'], palette=['#33a02c','#ff7f00', '#e31a1c'], data=data)
@@ -100,3 +116,29 @@ def plot_history(history):
     plt.plot(history.history['accuracy'], label='train accuracy')
     plt.plot(history.history['val_accuracy'], label='val accuracy')
     plt.legend()
+
+
+def plot_confusion_matrix(val_dataset, model):
+
+    unbatched_data = val_dataset.unbatch()
+
+    labels = list(unbatched_data.map(lambda x, y: y))
+
+    y_orig = [labels[i].numpy() for i in range(len(labels))]
+
+    y_prediction = model.predict(val_dataset)
+
+    predictions = []
+    for x in range(len(y_prediction)):
+        predictions.append(y_prediction[x].argmax())
+    predictions
+
+    result = confusion_matrix(y_orig, predictions, normalize='true')
+
+    df_cm = pd.DataFrame(result, range(3), range(3))
+
+    plt.figure(figsize=(10,7))
+    sns.set(font_scale=1.4) # for label size
+    sns.heatmap(df_cm, annot=True, fmt= ".3f", annot_kws={"size": 12}) # font size
+
+    plt.show()
