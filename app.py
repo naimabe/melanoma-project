@@ -55,8 +55,8 @@ if uploaded_image is not None:
 
     if st.button("Predict"):
         """Model is loading..."""
-        loaded_model = load_model(path='model_simple')
-
+        #loaded_model = load_model(path='model_simple')
+        loaded_model = load_model()
         """Prediction of the image..."""
         prediction = loaded_model.predict(array)
         """Results:"""
