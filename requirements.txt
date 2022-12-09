@@ -2,9 +2,17 @@ pandas
 numpy
 seaborn
 matplotlib
+seaborn
+setuptools
+requests
+
 scikit-learn
 pathlib
 albumentations
+keras
+sklearn
+imblearn.over_sampling
+shutil
 
 ipykernel
 pytest
