@@ -23,7 +23,8 @@ def load_model(save_copy_locally=False, path='models') -> Model:
     load the latest saved model, return None if no model found
     """
 
-    model_path = './saved_model/training_outputs/model_simple' #os.path.join(os.environ.get('LOCAL_REGISTRY_PATH'), path)
+    model_path = '../../saved_model/training_outputs/model_simple'
+    #os.path.join(os.environ.get('LOCAL_REGISTRY_PATH'), path)
 
     model = models.load_model(model_path)
     print("\n✅ model loaded from disk")
