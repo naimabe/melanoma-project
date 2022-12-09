@@ -146,3 +146,5 @@ test image resizing.ipynb
 notebooks/test-dejan.ipynb
 
 *.jpeg
+model_vgg/
+model_simple_lr001_smallbatch

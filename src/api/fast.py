@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.ml_logic.registry import load_model
 from src.ml_logic.preproc import images_to_dataset
+from src.ml_logic.model import predict_simple
+import app as appli
+import streamlit as stm
 
 app = FastAPI()
 app.add_middleware(
@@ -22,12 +25,11 @@ app.add_middleware(
 
 @app.get("/")
 def root():
-    return {"message": "Melanoma prediction assistance"}
+    return stm appli
 
 
 @app.get("/predict")
 def predict(image):
-    return {'hello'}
-    #model = load_model(path='BEST_MODEL_PATH')
-    #images_to_dataset(image, validation_split=False)
-    #return model.predict()
+    model = load_model(path='BEST_MODEL_PATH')
+    prediction = predict_simple(model, 'TEST_PATH', image)
+    return prediction

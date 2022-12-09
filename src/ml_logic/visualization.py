@@ -3,6 +3,7 @@ import pandas as pd
 import seaborn as sns
 from src.ml_logic.preproc import images_to_dataset
 import os
+from sklearn.metrics import confusion_matrix
 
 def description_target():
     '''
@@ -75,7 +76,9 @@ def dataset_creation_dangerousness():
     '''
     Function that creates a dataset with the dangerousness of the target(dangerous, potentially dangerous or benign)
     '''
+
     df = pd.read_csv(os.environ.get('METADATA_PATH'))
+
     target = pd.read_csv('../data/ISIC_2019_Training_GroundTruth.csv')
     target_dataset = target.set_index('image')
     target_dataset = target_dataset.idxmax(axis='columns')
@@ -132,3 +135,29 @@ def plot_history(history):
     plt.plot(history.history['accuracy'], label='train accuracy')
     plt.plot(history.history['val_accuracy'], label='val accuracy')
     plt.legend()
+
+
+def plot_confusion_matrix(val_dataset, model):
+
+    unbatched_data = val_dataset.unbatch()
+
+    labels = list(unbatched_data.map(lambda x, y: y))
+
+    y_orig = [labels[i].numpy() for i in range(len(labels))]
+
+    y_prediction = model.predict(val_dataset)
+
+    predictions = []
+    for x in range(len(y_prediction)):
+        predictions.append(y_prediction[x].argmax())
+    predictions
+
+    result = confusion_matrix(y_orig, predictions, normalize='true')
+
+    df_cm = pd.DataFrame(result, range(3), range(3))
+
+    plt.figure(figsize=(10,7))
+    sns.set(font_scale=1.4) # for label size
+    sns.heatmap(df_cm, annot=True, fmt= ".3f", annot_kws={"size": 12}) # font size
+
+    plt.show()
